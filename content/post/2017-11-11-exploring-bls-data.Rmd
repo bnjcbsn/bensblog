@@ -1,0 +1,76 @@
+---
+title: "Exploring BLS Data"
+author: "Ben Jacobson"
+date: '2017-11-11'
+slug: exploring-bls-data
+tags: BLS
+categories: []
+---
+# The BLS data availability  
+I always start out with a Google query and stackoverflow search.I discovered a package developed for this sake.
+https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
+
+
+http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede
+
+# Download BLS data  
+A solution result that I chose is a stackoverflow post regarding figuring out how to read BLS text data directly in.
+
+https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data
+
+
+My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.
+```{r, eval=FALSE}
+url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
+header <- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
+names(df) <- header
+head(df)
+```
+
+I'll try that again, but include all results.
+
+```{r, eval=FALSE}
+url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
+dat <- read.delim(url, stringsAsFactors = FALSE)
+head(dat)
+```
+
+Hmmm, what if I skip the first row?
+```{r, eval=FALSE}
+url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
+dat <- read.delim(url, skip = 1, stringsAsFactors = FALSE)
+head(dat)
+```
+
+It becomes apparent to me that in my first successful read, the row names are actually the first column. I don't expect to see this and the SO post doesn't identify this. But the SO solution does make more sense to address this. I'm curious at this point about how to define this structure. I want the results of the first read, but with the row names in the first column and the first column in the second column.
+
+Shit! All of a sudden, I can't download anything, drawing an error instead. [Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input] Back to kuberwein's discussion. 
+
+Observing this code for inflation.R:
+```{r}
+#Load file from BLS servers
+temp <- tempfile()
+# Add urlEXists here.
+download.file("https://download.bls.gov/pub/time.series/cu/cu.data.1.AllItems",temp)
+unlink(temp)
+```
+
+That worked!
+
+What gives here? I have no idea why read.delim was working and then began failing. I may return to that at some point in the future.
+
+Let's try a package, turning straight to the tidyverse. This first attempt works, but doesn't produce appropriate results.
+
+```{r, eval=FALSE}
+library(tidyverse)
+read_delim(url, delim = "|")
+```
+I researched my tidyverse options and decided to give readr::read_tsv a try.
+```{r}
+library(tidyverse)
+url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
+df <- read_tsv(url)
+head(df)
+```
+
+

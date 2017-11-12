@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.30.2" />
+
+
+<title>Exploring BLS Data - A Hugo website</title>
+<meta property="og:title" content="Exploring BLS Data - A Hugo website">
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdn.bootcss.com/highlight.js/9.11.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/rstudio/blogdown">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/rstudio">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">Exploring BLS Data</h1>
+
+    
+    <span class="article-date">2017/11/11</span>
+    
+
+    <div class="article-content">
+      <div id="the-bls-data-availability" class="section level1">
+<h1>The BLS data availability</h1>
+<p>I always start out with a Google query and stackoverflow search.I discovered a package developed for this sake. <a href="https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html" class="uri">https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html</a></p>
+<p><a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede" class="uri">http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede</a></p>
+</div>
+<div id="download-bls-data" class="section level1">
+<h1>Download BLS data</h1>
+<p>A solution result that I chose is a stackoverflow post regarding figuring out how to read BLS text data directly in.</p>
+<p><a href="https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data" class="uri">https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data</a></p>
+<p>My first attempt to download follows. Notice that I’ve loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.</p>
+<pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
+header &lt;- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
+names(df) &lt;- header
+head(df)</code></pre>
+<p>I’ll try that again, but include all results.</p>
+<pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
+dat &lt;- read.delim(url, stringsAsFactors = FALSE)
+head(dat)</code></pre>
+<p>Hmmm, what if I skip the first row?</p>
+<pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
+dat &lt;- read.delim(url, skip = 1, stringsAsFactors = FALSE)
+head(dat)</code></pre>
+<p>It becomes apparent to me that in my first successful read, the row names are actually the first column. I don’t expect to see this and the SO post doesn’t identify this. But the SO solution does make more sense to address this. I’m curious at this point about how to define this structure. I want the results of the first read, but with the row names in the first column and the first column in the second column.</p>
+<p>Shit! All of a sudden, I can’t download anything, drawing an error instead. [Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input] Back to kuberwein’s discussion.</p>
+<p>Observing this code for inflation.R:</p>
+<pre class="r"><code>#Load file from BLS servers
+temp &lt;- tempfile()
+# Add urlEXists here.
+download.file(&quot;https://download.bls.gov/pub/time.series/cu/cu.data.1.AllItems&quot;,temp)
+unlink(temp)</code></pre>
+<p>That worked!</p>
+<p>What gives here? I have no idea why read.delim was working and then began failing. I may return to that at some point in the future.</p>
+<p>Let’s try a package, turning straight to the tidyverse. This first attempt works, but doesn’t produce appropriate results.</p>
+<pre class="r"><code>library(tidyverse)
+read_delim(url, delim = &quot;|&quot;)</code></pre>
+<p>I researched my tidyverse options and decided to give readr::read_tsv a try.</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## Loading tidyverse: ggplot2
+## Loading tidyverse: tibble
+## Loading tidyverse: tidyr
+## Loading tidyverse: readr
+## Loading tidyverse: purrr
+## Loading tidyverse: dplyr</code></pre>
+<pre><code>## Conflicts with tidy packages ----------------------------------------------</code></pre>
+<pre><code>## filter(): dplyr, stats
+## lag():    dplyr, stats</code></pre>
+<pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
+df &lt;- read_tsv(url)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   datatype_code = col_character(),
+##   datatype_name = col_character()
+## )</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 17 parsing failures.
+## row # A tibble: 5 x 5 col     row   col  expected    actual expected   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt; actual 1     1  &lt;NA&gt; 2 columns 3 columns file 2     2  &lt;NA&gt; 2 columns 3 columns row 3     3  &lt;NA&gt; 2 columns 3 columns col 4     4  &lt;NA&gt; 2 columns 3 columns expected 5     5  &lt;NA&gt; 2 columns 3 columns actual # ... with 1 more variables: file &lt;chr&gt;
+## ... ................. ... ................................. ........ ................................. ...... ................................. .... ................................. ... ................................. ... ................................. ........ ................................. ...... .......................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code>head(df)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   datatype_code                              datatype_name
+##           &lt;chr&gt;                                      &lt;chr&gt;
+## 1            01                                 Employment
+## 2            02 Employment percent relative standard error
+## 3            03                           Hourly mean wage
+## 4            04                           Annual mean wage
+## 5            05       Wage percent relative standard error
+## 6            06                Hourly 10th percentile wage</code></pre>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/highlight.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/r.min.js"></script>
+<script src="//cdn.bootcss.com/highlight.js/9.11.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+

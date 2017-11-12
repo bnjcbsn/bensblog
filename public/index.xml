@@ -6,10 +6,23 @@
     <description>Recent content on A Hugo website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 30 Dec 2016 21:49:57 -0700</lastBuildDate>
+    <lastBuildDate>Sat, 11 Nov 2017 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Exploring BLS Data</title>
+      <link>/2017/11/11/exploring-bls-data/</link>
+      <pubDate>Sat, 11 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/2017/11/11/exploring-bls-data/</guid>
+      <description>The BLS data availabilityI always start out with a Google query and stackoverflow search.I discovered a package developed for this sake. https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
+http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede
+Download BLS dataA solution result that I chose is a stackoverflow post regarding figuring out how to read BLS text data directly in.
+https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data
+My first attempt to download follows. Notice that I’ve loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.</description>
+    </item>
     
     <item>
       <title>A Plain Markdown Post</title>
