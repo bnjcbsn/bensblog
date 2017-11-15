@@ -4,10 +4,10 @@ author: "Ben Jacobson"
 date: '2017-11-11'
 slug: exploring-bls-data
 tags: BLS
-categories: []
+categories: ["Draft"]
 ---
 # The BLS data availability  
-I always start out with a Google query and stackoverflow search.I discovered a package developed for this sake.
+I became curious about this subject following a tweet by a bank with an infographic regarding the November jobs report. It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it's offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake.
 https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
 
 
@@ -26,6 +26,8 @@ header <- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
 names(df) <- header
 head(df)
 ```
+
+[Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input]
 
 I'll try that again, but include all results.
 
@@ -63,7 +65,8 @@ Let's try a package, turning straight to the tidyverse. This first attempt works
 
 ```{r, eval=FALSE}
 library(tidyverse)
-read_delim(url, delim = "|")
+df <- read_delim(url, delim = "\t")
+head(df)
 ```
 I researched my tidyverse options and decided to give readr::read_tsv a try.
 ```{r}
