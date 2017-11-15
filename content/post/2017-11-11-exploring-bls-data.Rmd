@@ -1,5 +1,5 @@
 ---
-title: "Exploring BLS Data"
+title: "Exploring BLS Data to Create My Own Jobs Report"
 author: "Ben Jacobson"
 date: '2017-11-11'
 slug: exploring-bls-data
@@ -7,18 +7,15 @@ tags: BLS
 categories: ["Draft"]
 ---
 # The BLS data availability  
-I became curious about this subject following a tweet by a bank with an infographic regarding this November jobs report.  
+I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart.  
 ![](/MW_MonthlyJobs.jpg)
-It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it's offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein.
+It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it's offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).
 https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
 
-
-http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede
+The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site. I'm still trying to understand any benefits gained from either method.  
 
 # Download BLS data  
-A solution result that I chose is a stackoverflow post regarding figuring out how to read BLS text data directly in.
-
-https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data
+From the web search, a solution result that I chose is a stackoverflow [post](https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data) regarding how to read BLS text data directly in to R.  
 
 
 My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.
