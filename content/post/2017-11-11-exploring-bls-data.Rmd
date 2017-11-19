@@ -12,14 +12,13 @@ knitr::opts_chunk$set(cache=TRUE)
 # The BLS data availability  
 I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart from [here](https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/).  
 ![](/MW_MonthlyJobs.jpg)
-It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it's offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
+It dawned on me this public data may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There's a lot of data available and it's offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
 https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
 
-The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site. I'm still trying to understand any benefits gained from either method.  
+The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site. I'm still trying to understand any benefits gained from either method.   
 
 # Download BLS data  
-From the web search, a solution result that I chose is a stackoverflow [post](https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data) regarding how to read BLS text data directly in to R.  
-
+From the web search, a solution result that I chose is a stackoverflow [post](https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data) regarding how to read BLS text data directly in to R. This approach uses the text files published by the BLS and doesn't require their API. For simplicity, I decide to pursue this and table the API approach.  
 
 My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.
 ```{r, eval=FALSE}
@@ -80,7 +79,7 @@ head(datatype)
 
 I'm not sure what's going on here because there are loads of messages but the results look complete. I'm switching to readr::read_tsv from this point for loading these files. Moving along...  
 
-There is extensive information provided by BLS on their text files [here](https://download.bls.gov/pub/time.series/ce/ce.txt), of course, in text form.The full list of text files available are found [here](https://download.bls.gov/pub/time.series/ce/).  
+There is extensive information provided by BLS on their text files found  [here](https://download.bls.gov/pub/time.series/ce/ce.txt), of course, in text form. The full list of text files available are found [here](https://download.bls.gov/pub/time.series/ce/).  
 
 Continuing, let's retrieve the employment series data dictionary:  
 
@@ -91,7 +90,7 @@ series <- read_tsv(url)
 head(series)
 ```
 
-Then download all series data, except that this fails in webiste render, perhaps due to size:
+Then download all series data, except that this fails in website render, perhaps due to size (not immediately concerned with solving if the next approach works):
 
 ```{r, eval=FALSE}
 library(tidyverse)
@@ -100,17 +99,40 @@ allseries <- read_tsv(url)
 head(allseries)
 ```
 
-I'm interested in the first record of the series data, `r series[1,6]`
-
-Instad of all data, I'll download just the series that I'm seeking for this exercise.
-```{r, eval=FALSE}
+I'm interested in the first record of the series data, `r series[1,6]`, so I decide to scale back. Instead of all data, I'll download just the series that I'm seeking for this exercise.  
+```{r}
 library(tidyverse)
 url <- "https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE"
 series.01a <- read_tsv(url)
 head(series.01a)
 ```
 
-My next steps will be to convert this to a time series, then create a plot.
+My next steps will be to evaluate the data, convert this to a time series, then create a plot.  
+
+## Data Evaluation  
+
+```{r}
+glimpse(series.01a)
+```
+```{r}
+summary(series.01a)
+```
+
+```{r}
+ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
+    geom_violin()
+```
+
+Oh, that's not entirely what I expected because I thought the description . I need to understand why I have many series IDs. Let's replot on the first series ID, CES0000000001. I'll replot and factor on year since I know that only one series is present.
+
+```{r}
+series.01a %>%
+    filter(series_id=='CES0000000001') %>%
+ggplot(aes(x=year, y=value, colour=as.factor(year))) +
+    geom_violin()
+```
+
+
 
 ## Time Series Conversion  
 

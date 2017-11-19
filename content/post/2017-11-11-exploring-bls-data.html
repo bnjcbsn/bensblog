@@ -12,13 +12,13 @@ categories: ["Draft"]
 <div id="the-bls-data-availability" class="section level1">
 <h1>The BLS data availability</h1>
 <p>I became curious about this subject following a tweet by a bank with an <a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede">infographic</a> regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart from <a href="https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/">here</a>.<br />
-<img src="/MW_MonthlyJobs.jpg" /> It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it’s offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>.<br />
+<img src="/MW_MonthlyJobs.jpg" /> It dawned on me this public data may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There’s a lot of data available and it’s offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>.<br />
 <a href="https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html" class="uri">https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html</a></p>
 <p>The BLS site does offer text file downloads, and Kris’ package uses that approach, but seems centered on using the API for the site. I’m still trying to understand any benefits gained from either method.</p>
 </div>
 <div id="download-bls-data" class="section level1">
 <h1>Download BLS data</h1>
-<p>From the web search, a solution result that I chose is a stackoverflow <a href="https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data">post</a> regarding how to read BLS text data directly in to R.</p>
+<p>From the web search, a solution result that I chose is a stackoverflow <a href="https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data">post</a> regarding how to read BLS text data directly in to R. This approach uses the text files published by the BLS and doesn’t require their API. For simplicity, I decide to pursue this and table the API approach.</p>
 <p>My first attempt to download follows. Notice that I’ve loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.</p>
 <pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
 header &lt;- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
@@ -83,7 +83,7 @@ datatype &lt;- read_tsv(url)</code></pre>
 ## 6             07
 ## # ... with 1 more variables: data_type_text &lt;chr&gt;</code></pre>
 <p>I’m not sure what’s going on here because there are loads of messages but the results look complete. I’m switching to readr::read_tsv from this point for loading these files. Moving along…</p>
-<p>There is extensive information provided by BLS on their text files <a href="https://download.bls.gov/pub/time.series/ce/ce.txt">here</a>, of course, in text form.The full list of text files available are found <a href="https://download.bls.gov/pub/time.series/ce/">here</a>.</p>
+<p>There is extensive information provided by BLS on their text files found <a href="https://download.bls.gov/pub/time.series/ce/ce.txt">here</a>, of course, in text form. The full list of text files available are found <a href="https://download.bls.gov/pub/time.series/ce/">here</a>.</p>
 <p>Continuing, let’s retrieve the employment series data dictionary:</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.series&quot;
@@ -114,18 +114,78 @@ series &lt;- read_tsv(url)</code></pre>
 ## 6 CES0500000002               05      05000000             02        S
 ## # ... with 6 more variables: series_title &lt;chr&gt;, footnote_codes &lt;chr&gt;,
 ## #   begin_year &lt;int&gt;, begin_period &lt;chr&gt;, end_year &lt;int&gt;, end_period &lt;chr&gt;</code></pre>
-<p>Then download all series data, except that this fails in webiste render, perhaps due to size:</p>
+<p>Then download all series data, except that this fails in website render, perhaps due to size (not immediately concerned with solving if the next approach works):</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.0.AllCESSeries&quot;
 allseries &lt;- read_tsv(url)
 head(allseries)</code></pre>
-<p>I’m interested in the first record of the series data, All employees, thousands, total nonfarm, seasonally adjusted</p>
-<p>Instad of all data, I’ll download just the series that I’m seeking for this exercise.</p>
+<p>I’m interested in the first record of the series data, All employees, thousands, total nonfarm, seasonally adjusted, so I decide to scale back. Instead of all data, I’ll download just the series that I’m seeking for this exercise.</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE&quot;
-series.01a &lt;- read_tsv(url)
-head(series.01a)</code></pre>
-<p>My next steps will be to convert this to a time series, then create a plot.</p>
+series.01a &lt;- read_tsv(url)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   series_id = col_character(),
+##   year = col_integer(),
+##   period = col_character(),
+##   value = col_integer(),
+##   footnote_codes = col_character()
+## )</code></pre>
+<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)</code></pre>
+<pre><code>## Warning: 321069 parsing failures.
+## row # A tibble: 5 x 5 col     row   col               expected actual expected   &lt;int&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt; actual 1  5677 value no trailing characters     .4 file 2  5678 value no trailing characters     .5 row 3  5679 value no trailing characters     .5 col 4  5680 value no trailing characters     .1 expected 5  5681 value no trailing characters     .0 actual # ... with 1 more variables: file &lt;chr&gt;
+## ... ................. ... ........................................... ........ ........................................... ...... ........................................... .... ........................................... ... ........................................... ... ........................................... ........ ........................................... ...... .......................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code>head(series.01a)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##       series_id  year period value footnote_codes
+##           &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;int&gt;          &lt;chr&gt;
+## 1 CES0000000001  1939    M01 29923           &lt;NA&gt;
+## 2 CES0000000001  1939    M02 30101           &lt;NA&gt;
+## 3 CES0000000001  1939    M03 30280           &lt;NA&gt;
+## 4 CES0000000001  1939    M04 30094           &lt;NA&gt;
+## 5 CES0000000001  1939    M05 30300           &lt;NA&gt;
+## 6 CES0000000001  1939    M06 30502           &lt;NA&gt;</code></pre>
+<p>My next steps will be to evaluate the data, convert this to a time series, then create a plot.</p>
+<div id="data-evaluation" class="section level2">
+<h2>Data Evaluation</h2>
+<pre class="r"><code>glimpse(series.01a)</code></pre>
+<pre><code>## Observations: 338,097
+## Variables: 5
+## $ series_id      &lt;chr&gt; &quot;CES0000000001&quot;, &quot;CES0000000001&quot;, &quot;CES000000000...
+## $ year           &lt;int&gt; 1939, 1939, 1939, 1939, 1939, 1939, 1939, 1939,...
+## $ period         &lt;chr&gt; &quot;M01&quot;, &quot;M02&quot;, &quot;M03&quot;, &quot;M04&quot;, &quot;M05&quot;, &quot;M06&quot;, &quot;M07&quot;...
+## $ value          &lt;int&gt; 29923, 30101, 30280, 30094, 30300, 30502, 30419...
+## $ footnote_codes &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,...</code></pre>
+<pre class="r"><code>summary(series.01a)</code></pre>
+<pre><code>##   series_id              year         period              value       
+##  Length:338097      Min.   :1939   Length:338097      Min.   :   543  
+##  Class :character   1st Qu.:1994   Class :character   1st Qu.:  3899  
+##  Mode  :character   Median :2002   Mode  :character   Median : 10008  
+##                     Mean   :2000                      Mean   : 22400  
+##                     3rd Qu.:2010                      3rd Qu.: 22518  
+##                     Max.   :2017                      Max.   :147010  
+##                                                       NA&#39;s   :321069  
+##  footnote_codes    
+##  Length:338097     
+##  Class :character  
+##  Mode  :character  
+##                    
+##                    
+##                    
+## </code></pre>
+<pre class="r"><code>ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
+    geom_violin()</code></pre>
+<pre><code>## Warning: Removed 321069 rows containing non-finite values (stat_ydensity).</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>Oh, that’s not entirely what I expected because I thought the description . I need to understand why I have many series IDs. Let’s replot on the first series ID, CES0000000001. I’ll replot and factor on year since I know that only one series is present.</p>
+<pre class="r"><code>series.01a %&gt;%
+    filter(series_id==&#39;CES0000000001&#39;) %&gt;%
+ggplot(aes(x=year, y=value, colour=as.factor(year))) +
+    geom_violin()</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
 <div id="time-series-conversion" class="section level2">
 <h2>Time Series Conversion</h2>
 </div>
