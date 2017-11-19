@@ -114,14 +114,19 @@ series &lt;- read_tsv(url)</code></pre>
 ## 6 CES0500000002               05      05000000             02        S
 ## # ... with 6 more variables: series_title &lt;chr&gt;, footnote_codes &lt;chr&gt;,
 ## #   begin_year &lt;int&gt;, begin_period &lt;chr&gt;, end_year &lt;int&gt;, end_period &lt;chr&gt;</code></pre>
-<p>Then download all series data, except that :</p>
+<p>Then download all series data, except that this fails in webiste render, perhaps due to size:</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.0.AllCESSeries&quot;
 allseries &lt;- read_tsv(url)
 head(allseries)</code></pre>
 <p>I’m interested in the first record of the series data, All employees, thousands, total nonfarm, seasonally adjusted</p>
+<p>Instad of all data, I’ll download just the series that I’m seeking for this exercise.</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE&quot;
 series.01a &lt;- read_tsv(url)
 head(series.01a)</code></pre>
+<p>My next steps will be to convert this to a time series, then create a plot.</p>
+<div id="time-series-conversion" class="section level2">
+<h2>Time Series Conversion</h2>
+</div>
 </div>

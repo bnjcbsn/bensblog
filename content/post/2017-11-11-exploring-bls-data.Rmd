@@ -91,7 +91,7 @@ series <- read_tsv(url)
 head(series)
 ```
 
-Then download all series data, except that :
+Then download all series data, except that this fails in webiste render, perhaps due to size:
 
 ```{r, eval=FALSE}
 library(tidyverse)
@@ -102,10 +102,15 @@ head(allseries)
 
 I'm interested in the first record of the series data, `r series[1,6]`
 
-
+Instad of all data, I'll download just the series that I'm seeking for this exercise.
 ```{r, eval=FALSE}
 library(tidyverse)
 url <- "https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE"
 series.01a <- read_tsv(url)
 head(series.01a)
 ```
+
+My next steps will be to convert this to a time series, then create a plot.
+
+## Time Series Conversion  
+
