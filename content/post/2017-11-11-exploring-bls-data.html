@@ -175,16 +175,18 @@ series.01a &lt;- read_tsv(url)</code></pre>
 ##                    
 ##                    
 ## </code></pre>
-<pre class="r"><code>ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
-    geom_violin()</code></pre>
+<pre class="r"><code>p1 &lt;- ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
+    geom_violin()
+print(p1)</code></pre>
 <pre><code>## Warning: Removed 321069 rows containing non-finite values (stat_ydensity).</code></pre>
-<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot1-1.png" width="672" /></p>
 <p>Oh, that’s not entirely what I expected because I thought the description . I need to understand why I have many series IDs. Let’s replot on the first series ID, CES0000000001. I’ll replot and factor on year since I know that only one series is present.</p>
-<pre class="r"><code>series.01a %&gt;%
+<pre class="r"><code>p2 &lt;- series.01a %&gt;%
     filter(series_id==&#39;CES0000000001&#39;) %&gt;%
 ggplot(aes(x=year, y=value, colour=as.factor(year))) +
-    geom_violin()</code></pre>
-<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+    geom_violin()
+print(p2)</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot2-1.png" width="672" /></p>
 </div>
 <div id="time-series-conversion" class="section level2">
 <h2>Time Series Conversion</h2>
