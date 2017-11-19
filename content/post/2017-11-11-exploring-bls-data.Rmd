@@ -119,22 +119,45 @@ summary(series.01a)
 ```
 
 ```{r plot1}
-p1 <- ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
+ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
     geom_violin()
-print(p1)
 ```
 
-Oh, that's not entirely what I expected because I thought the description . I need to understand why I have many series IDs. Let's replot on the first series ID, CES0000000001. I'll replot and factor on year since I know that only one series is present.
+Oh, that's not entirely what I expected because I thought the description indicated this text file would be a single series. I need to understand why I have many series IDs eventually. Let's replot on the first series ID, CES0000000001. I'll replot and factor on year since I know that only one series is present.
 
 ```{r plot2}
-p2 <- series.01a %>%
+series.01a %>%
     filter(series_id=='CES0000000001') %>%
 ggplot(aes(x=year, y=value, colour=as.factor(year))) +
     geom_violin()
-print(p2)
 ```
 
+```{r plot3}
+series.01a %>%
+    filter(series_id=='CES0000000001') %>%
+ggplot(aes(x=year, y=value, colour=as.factor(period))) +
+    geom_violin()
+```
 
+My suspicion is that this subset is unique on year and period.
+```{r}
+series.01a%>%
+    filter(series_id=='CES0000000001')
+```
+```{r}
+series.01a%>%
+    filter(series_id=='CES0000000001') %>%
+    select(-footnote_codes) %>%
+    group_by(series_id, year, period) %>%
+    summarise_all(sum)
+```
+
+I'm very satisfied with these comparisons, where grouping and summarizing the row count remains equal. I'd like to test that each year and period occurs exactly once.  
 
 ## Time Series Conversion  
+For reasons discussed by [Business Science](https://twitter.com/bizScienc), I'll lean on the tidyquant package for impementing time series elements with this analysis.  
+
+```{r}
+library(tidyquant)
+```
 
