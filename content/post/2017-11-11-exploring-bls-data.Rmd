@@ -119,17 +119,19 @@ summary(series.01a)
 ```
 
 ```{r}
-ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
+p1 <- ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
     geom_violin()
+print(p1)
 ```
 
 Oh, that's not entirely what I expected because I thought the description . I need to understand why I have many series IDs. Let's replot on the first series ID, CES0000000001. I'll replot and factor on year since I know that only one series is present.
 
 ```{r}
-series.01a %>%
+p2 <- series.01a %>%
     filter(series_id=='CES0000000001') %>%
 ggplot(aes(x=year, y=value, colour=as.factor(year))) +
     geom_violin()
+print(p2)
 ```
 
 
