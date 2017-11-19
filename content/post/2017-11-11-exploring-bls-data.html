@@ -11,8 +11,9 @@ categories: ["Draft"]
 
 <div id="the-bls-data-availability" class="section level1">
 <h1>The BLS data availability</h1>
-<p>I became curious about this subject following a tweet by a bank with an <a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede">infographic</a> regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart.<br />
-<img src="/MW_MonthlyJobs.jpg" /> It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it’s offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>. <a href="https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html" class="uri">https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html</a></p>
+<p>I became curious about this subject following a tweet by a bank with an <a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede">infographic</a> regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart from <a href="https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/">here</a>.<br />
+<img src="/MW_MonthlyJobs.jpg" /> It dawned on me this public data may prove useful for a post as my professional work is intirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There is a lot of data available and it’s offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>.<br />
+<a href="https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html" class="uri">https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html</a></p>
 <p>The BLS site does offer text file downloads, and Kris’ package uses that approach, but seems centered on using the API for the site. I’m still trying to understand any benefits gained from either method.</p>
 </div>
 <div id="download-bls-data" class="section level1">
@@ -57,28 +58,70 @@ head(df)</code></pre>
 <pre><code>## Conflicts with tidy packages ----------------------------------------------</code></pre>
 <pre><code>## filter(): dplyr, stats
 ## lag():    dplyr, stats</code></pre>
-<pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
-df &lt;- read_tsv(url)</code></pre>
+<pre class="r"><code>url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.datatype&quot;
+datatype &lt;- read_tsv(url)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   datatype_code = col_character(),
-##   datatype_name = col_character()
+##   data_type_code = col_character(),
+##   data_type_text = col_character()
 ## )</code></pre>
 <pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
 ## a multiple of vector length (arg 1)</code></pre>
-<pre><code>## Warning: 17 parsing failures.
+<pre><code>## Warning: 45 parsing failures.
 ## row # A tibble: 5 x 5 col     row   col  expected    actual expected   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt; actual 1     1  &lt;NA&gt; 2 columns 3 columns file 2     2  &lt;NA&gt; 2 columns 3 columns row 3     3  &lt;NA&gt; 2 columns 3 columns col 4     4  &lt;NA&gt; 2 columns 3 columns expected 5     5  &lt;NA&gt; 2 columns 3 columns actual # ... with 1 more variables: file &lt;chr&gt;
 ## ... ................. ... ................................. ........ ................................. ...... ................................. .... ................................. ... ................................. ... ................................. ........ ................................. ...... .......................................
 ## See problems(...) for more details.</code></pre>
-<pre class="r"><code>head(df)</code></pre>
+<pre class="r"><code>head(datatype)</code></pre>
 <pre><code>## # A tibble: 6 x 2
-##   datatype_code                              datatype_name
-##           &lt;chr&gt;                                      &lt;chr&gt;
-## 1            01                                 Employment
-## 2            02 Employment percent relative standard error
-## 3            03                           Hourly mean wage
-## 4            04                           Annual mean wage
-## 5            05       Wage percent relative standard error
-## 6            06                Hourly 10th percentile wage</code></pre>
-<p>I’m not sure what’s going on here because there are loads of messages but the results look complete.</p>
+##   data_type_code
+##            &lt;chr&gt;
+## 1             01
+## 2             02
+## 3             03
+## 4             04
+## 5             06
+## 6             07
+## # ... with 1 more variables: data_type_text &lt;chr&gt;</code></pre>
+<p>I’m not sure what’s going on here because there are loads of messages but the results look complete. I’m switching to readr::read_tsv from this point for loading these files. Moving along…</p>
+<p>There is extensive information provided by BLS on their text files <a href="https://download.bls.gov/pub/time.series/ce/ce.txt">here</a>, of course, in text form.The full list of text files available are found <a href="https://download.bls.gov/pub/time.series/ce/">here</a>.</p>
+<p>Continuing, let’s retrieve the employment series data dictionary:</p>
+<pre class="r"><code>library(tidyverse)
+url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.series&quot;
+series &lt;- read_tsv(url)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   series_id = col_character(),
+##   supersector_code = col_character(),
+##   industry_code = col_character(),
+##   data_type_code = col_character(),
+##   seasonal = col_character(),
+##   series_title = col_character(),
+##   footnote_codes = col_character(),
+##   begin_year = col_integer(),
+##   begin_period = col_character(),
+##   end_year = col_integer(),
+##   end_period = col_character()
+## )</code></pre>
+<pre class="r"><code>head(series)</code></pre>
+<pre><code>## # A tibble: 6 x 11
+##       series_id supersector_code industry_code data_type_code seasonal
+##           &lt;chr&gt;            &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;
+## 1 CES0000000001               00      00000000             01        S
+## 2 CES0000000010               00      00000000             10        S
+## 3 CES0000000025               00      00000000             25        S
+## 4 CES0000000026               00      00000000             26        S
+## 5 CES0500000001               05      05000000             01        S
+## 6 CES0500000002               05      05000000             02        S
+## # ... with 6 more variables: series_title &lt;chr&gt;, footnote_codes &lt;chr&gt;,
+## #   begin_year &lt;int&gt;, begin_period &lt;chr&gt;, end_year &lt;int&gt;, end_period &lt;chr&gt;</code></pre>
+<p>Then download all series data, except that :</p>
+<pre class="r"><code>library(tidyverse)
+url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.0.AllCESSeries&quot;
+allseries &lt;- read_tsv(url)
+head(allseries)</code></pre>
+<p>I’m interested in the first record of the series data, All employees, thousands, total nonfarm, seasonally adjusted</p>
+<pre class="r"><code>library(tidyverse)
+url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE&quot;
+series.01a &lt;- read_tsv(url)
+head(series.01a)</code></pre>
 </div>
