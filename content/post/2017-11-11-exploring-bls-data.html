@@ -14,7 +14,7 @@ categories: ["Draft"]
 <p>I became curious about this subject following a tweet by a bank with an <a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede">infographic</a> regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart from <a href="https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/">here</a>.<br />
 <img src="/MW_MonthlyJobs.jpg" /> It dawned on me this public data may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There’s a lot of data available and it’s offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>.<br />
 <a href="https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html" class="uri">https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html</a></p>
-<p>The BLS site does offer text file downloads, and Kris’ package uses that approach, but seems centered on using the API for the site. I’m still trying to understand any benefits gained from either method.</p>
+<p>The BLS site does offer text file downloads, and Kris’ package uses that approach, but seems centered on using the API for the site. I’m still trying to understand any benefits gained from either method over the other.</p>
 </div>
 <div id="download-bls-data" class="section level1">
 <h1>Download BLS data</h1>
@@ -223,7 +223,8 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 </div>
 <div id="time-series-conversion" class="section level2">
 <h2>Time Series Conversion</h2>
-<p>For reasons discussed by <a href="https://twitter.com/bizScienc">Business Science</a>, I’ll lean on the tidyquant package for impementing time series elements with this analysis.</p>
+<p>For reasons discussed by <a href="https://twitter.com/bizScienc">Business Science</a>, I’ll lean on the tidyquant package for impementing time series elements with this analysis.<br />
+My conversion to date solution was inspired by this stackoverflow <a href="https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date/6242980">post</a>.</p>
 <pre class="r"><code>library(tidyquant)</code></pre>
 <pre><code>## Loading required package: lubridate</code></pre>
 <pre><code>## 
@@ -260,5 +261,39 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 <pre><code>## The following object is masked from &#39;package:tibble&#39;:
 ## 
 ##     as_tibble</code></pre>
+<pre class="r"><code>series.01a$date &lt;- as.yearmon(paste(series.01a$year,
+                                 substr(series.01a$period, 2, 4),sep=&quot;-&quot;))</code></pre>
+<pre class="r"><code>fs &lt;- series.01a %&gt;%
+filter(series_id==&#39;CES0000000001&#39;) %&gt;%
+    mutate(chg=value-lag(value)) %&gt;%
+    select(date, value, chg)</code></pre>
+<pre class="r"><code>plot(fs)</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot4-1.png" width="672" /> Inspired by tidyquant vignette, “<a href="https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ04-charting-with-tidyquant.html">Charting with Tidyquant</a>”, from Example 3, Charting volume with geom_segment.</p>
+<pre class="r"><code>fs %&gt;%
+    ggplot(aes(x = date, y = chg)) +
+    geom_segment(aes(xend = date, yend = 0, color = chg))</code></pre>
+<pre><code>## Don&#39;t know how to automatically pick scale for object of type yearmon. Defaulting to continuous.</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_segment).</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot5-1.png" width="672" /></p>
+<p>I’m pleased at this point because I’m very close to my objective. There are a couple of messages that have me piqued, but I’m moving on for now.</p>
+<pre class="r"><code>fs %&gt;%
+    filter(date &gt; 2007) %&gt;%
+    ggplot(aes(x = date, y = chg)) +
+    geom_segment(aes(xend = date, yend = 0, color = chg)) + 
+    labs(title=&quot;Monthly jobs growth&quot;, subtitle=&quot;In thousands&quot;, y=&quot;&quot;, x=&quot;&quot;) + 
+    theme_light() +
+    theme(legend.position=&quot;none&quot;)</code></pre>
+<pre><code>## Don&#39;t know how to automatically pick scale for object of type yearmon. Defaulting to continuous.</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot6-1.png" width="672" /></p>
+<p>There is one more issue to resolve where the date field is being evaluated as continuous, and it’s causing the x-axis to line up very poorly. I think that I need to convert it from yearmon to date.</p>
+<pre class="r"><code>fs %&gt;%
+    mutate(date2=as.Date(date)) %&gt;%
+    filter(date &gt; 2007) %&gt;%
+    ggplot(aes(x = date2, y = chg)) +
+    geom_segment(aes(xend = date2, yend = 0, color = chg)) + 
+    labs(title=&quot;Monthly jobs growth&quot;, subtitle=&quot;In thousands&quot;, y=&quot;&quot;, x=&quot;&quot;) + 
+    theme_light() +
+    theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot7-1.png" width="672" /></p>
 </div>
 </div>

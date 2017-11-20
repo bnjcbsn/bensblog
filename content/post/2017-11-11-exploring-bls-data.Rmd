@@ -198,7 +198,7 @@ fs %>%
 
 There is one more issue to resolve where the date field is being evaluated as continuous, and it's causing the x-axis to line up very poorly. I think that I need to convert it from yearmon to date.
 
-```{r plot6}
+```{r plot7}
 fs %>%
     mutate(date2=as.Date(date)) %>%
     filter(date > 2007) %>%
