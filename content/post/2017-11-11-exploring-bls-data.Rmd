@@ -15,7 +15,7 @@ I became curious about this subject following a tweet by a bank with an [infogra
 It dawned on me this public data may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov to try to find out what is available and how to access it. There's a lot of data available and it's offered multiple ways. I always start out with a Google query and stackoverflow search. I discovered a package developed for this sake written by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
 https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
 
-The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site. I'm still trying to understand any benefits gained from either method.   
+The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site. I'm still trying to understand any benefits gained from either method over the other.   
 
 # Download BLS data  
 From the web search, a solution result that I chose is a stackoverflow [post](https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data) regarding how to read BLS text data directly in to R. This approach uses the text files published by the BLS and doesn't require their API. For simplicity, I decide to pursue this and table the API approach.  
@@ -156,8 +156,55 @@ I'm very satisfied with these comparisons, where grouping and summarizing the ro
 
 ## Time Series Conversion  
 For reasons discussed by [Business Science](https://twitter.com/bizScienc), I'll lean on the tidyquant package for impementing time series elements with this analysis.  
+My conversion to date solution was inspired by this stackoverflow [post](https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date/6242980).
 
 ```{r}
 library(tidyquant)
 ```
 
+```{r}
+series.01a$date <- as.yearmon(paste(series.01a$year,
+                                 substr(series.01a$period, 2, 4),sep="-"))
+```
+
+```{r}
+fs <- series.01a %>%
+filter(series_id=='CES0000000001') %>%
+    mutate(chg=value-lag(value)) %>%
+    select(date, value, chg)
+```
+
+```{r plot4}
+plot(fs)
+```
+Inspired by tidyquant vignette, "[Charting with Tidyquant](https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ04-charting-with-tidyquant.html)", from Example 3, Charting volume with geom_segment.
+```{r plot5}
+fs %>%
+    ggplot(aes(x = date, y = chg)) +
+    geom_segment(aes(xend = date, yend = 0, color = chg))
+```
+
+I'm pleased at this point because I'm very close to my objective. There are a couple of messages that have me piqued, but I'm moving on for now.
+
+```{r plot6}
+fs %>%
+    filter(date > 2007) %>%
+    ggplot(aes(x = date, y = chg)) +
+    geom_segment(aes(xend = date, yend = 0, color = chg)) + 
+    labs(title="Monthly jobs growth", subtitle="In thousands", y="", x="") + 
+    theme_light() +
+    theme(legend.position="none")
+```
+
+There is one more issue to resolve where the date field is being evaluated as continuous, and it's causing the x-axis to line up very poorly. I think that I need to convert it from yearmon to date.
+
+```{r plot6}
+fs %>%
+    mutate(date2=as.Date(date)) %>%
+    filter(date > 2007) %>%
+    ggplot(aes(x = date2, y = chg)) +
+    geom_segment(aes(xend = date2, yend = 0, color = chg)) + 
+    labs(title="Monthly jobs growth", subtitle="In thousands", y="", x="") + 
+    theme_light() +
+    theme(legend.position="none")
+```

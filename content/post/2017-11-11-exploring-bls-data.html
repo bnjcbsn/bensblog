@@ -48,17 +48,8 @@ unlink(temp)</code></pre>
 df &lt;- read_delim(url, delim = &quot;\t&quot;)
 head(df)</code></pre>
 <p>I researched my tidyverse options and decided to give readr::read_tsv a try.</p>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## Loading tidyverse: ggplot2
-## Loading tidyverse: tibble
-## Loading tidyverse: tidyr
-## Loading tidyverse: readr
-## Loading tidyverse: purrr
-## Loading tidyverse: dplyr</code></pre>
-<pre><code>## Conflicts with tidy packages ----------------------------------------------</code></pre>
-<pre><code>## filter(): dplyr, stats
-## lag():    dplyr, stats</code></pre>
-<pre class="r"><code>url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.datatype&quot;
+<pre class="r"><code>library(tidyverse)
+url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.datatype&quot;
 datatype &lt;- read_tsv(url)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
@@ -175,20 +166,99 @@ series.01a &lt;- read_tsv(url)</code></pre>
 ##                    
 ##                    
 ## </code></pre>
-<pre class="r"><code>p1 &lt;- ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
-    geom_violin()
-print(p1)</code></pre>
+<pre class="r"><code>ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
+    geom_violin()</code></pre>
 <pre><code>## Warning: Removed 321069 rows containing non-finite values (stat_ydensity).</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot1-1.png" width="672" /></p>
-<p>Oh, that’s not entirely what I expected because I thought the description . I need to understand why I have many series IDs. Let’s replot on the first series ID, CES0000000001. I’ll replot and factor on year since I know that only one series is present.</p>
-<pre class="r"><code>p2 &lt;- series.01a %&gt;%
+<p>Oh, that’s not entirely what I expected because I thought the description indicated this text file would be a single series. I need to understand why I have many series IDs eventually. Let’s replot on the first series ID, CES0000000001. I’ll replot and factor on year since I know that only one series is present.</p>
+<pre class="r"><code>series.01a %&gt;%
     filter(series_id==&#39;CES0000000001&#39;) %&gt;%
 ggplot(aes(x=year, y=value, colour=as.factor(year))) +
-    geom_violin()
-print(p2)</code></pre>
+    geom_violin()</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot2-1.png" width="672" /></p>
+<pre class="r"><code>series.01a %&gt;%
+    filter(series_id==&#39;CES0000000001&#39;) %&gt;%
+ggplot(aes(x=year, y=value, colour=as.factor(period))) +
+    geom_violin()</code></pre>
+<pre><code>## Warning: position_dodge requires non-overlapping x intervals</code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot3-1.png" width="672" /></p>
+<p>My suspicion is that this subset is unique on year and period.</p>
+<pre class="r"><code>series.01a%&gt;%
+    filter(series_id==&#39;CES0000000001&#39;)</code></pre>
+<pre><code>## # A tibble: 946 x 5
+##        series_id  year period value footnote_codes
+##            &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;int&gt;          &lt;chr&gt;
+##  1 CES0000000001  1939    M01 29923           &lt;NA&gt;
+##  2 CES0000000001  1939    M02 30101           &lt;NA&gt;
+##  3 CES0000000001  1939    M03 30280           &lt;NA&gt;
+##  4 CES0000000001  1939    M04 30094           &lt;NA&gt;
+##  5 CES0000000001  1939    M05 30300           &lt;NA&gt;
+##  6 CES0000000001  1939    M06 30502           &lt;NA&gt;
+##  7 CES0000000001  1939    M07 30419           &lt;NA&gt;
+##  8 CES0000000001  1939    M08 30663           &lt;NA&gt;
+##  9 CES0000000001  1939    M09 31032           &lt;NA&gt;
+## 10 CES0000000001  1939    M10 31408           &lt;NA&gt;
+## # ... with 936 more rows</code></pre>
+<pre class="r"><code>series.01a%&gt;%
+    filter(series_id==&#39;CES0000000001&#39;) %&gt;%
+    select(-footnote_codes) %&gt;%
+    group_by(series_id, year, period) %&gt;%
+    summarise_all(sum)</code></pre>
+<pre><code>## # A tibble: 946 x 4
+## # Groups:   series_id, year [?]
+##        series_id  year period value
+##            &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;int&gt;
+##  1 CES0000000001  1939    M01 29923
+##  2 CES0000000001  1939    M02 30101
+##  3 CES0000000001  1939    M03 30280
+##  4 CES0000000001  1939    M04 30094
+##  5 CES0000000001  1939    M05 30300
+##  6 CES0000000001  1939    M06 30502
+##  7 CES0000000001  1939    M07 30419
+##  8 CES0000000001  1939    M08 30663
+##  9 CES0000000001  1939    M09 31032
+## 10 CES0000000001  1939    M10 31408
+## # ... with 936 more rows</code></pre>
+<p>I’m very satisfied with these comparisons, where grouping and summarizing the row count remains equal. I’d like to test that each year and period occurs exactly once.</p>
 </div>
 <div id="time-series-conversion" class="section level2">
 <h2>Time Series Conversion</h2>
+<p>For reasons discussed by <a href="https://twitter.com/bizScienc">Business Science</a>, I’ll lean on the tidyquant package for impementing time series elements with this analysis.</p>
+<pre class="r"><code>library(tidyquant)</code></pre>
+<pre><code>## Loading required package: lubridate</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:base&#39;:
+## 
+##     date</code></pre>
+<pre><code>## Loading required package: PerformanceAnalytics</code></pre>
+<pre><code>## Loading required package: xts</code></pre>
+<pre><code>## Loading required package: zoo</code></pre>
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<pre><code>## 
+## Attaching package: &#39;xts&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     first, last</code></pre>
+<pre><code>## 
+## Attaching package: &#39;PerformanceAnalytics&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:graphics&#39;:
+## 
+##     legend</code></pre>
+<pre><code>## Loading required package: quantmod</code></pre>
+<pre><code>## Loading required package: TTR</code></pre>
+<pre><code>## Version 0.4-0 included new data defaults. See ?getSymbols.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;tidyquant&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     as_tibble</code></pre>
+<pre><code>## The following object is masked from &#39;package:tibble&#39;:
+## 
+##     as_tibble</code></pre>
 </div>
 </div>
