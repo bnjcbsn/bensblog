@@ -8,6 +8,8 @@ categories: ["Draft"]
 ---
 ```{r include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
 ```
 # The BLS data availability  
 I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart from [here](https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/).  

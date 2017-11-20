@@ -50,19 +50,8 @@ head(df)</code></pre>
 <p>I researched my tidyverse options and decided to give readr::read_tsv a try.</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.datatype&quot;
-datatype &lt;- read_tsv(url)</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   data_type_code = col_character(),
-##   data_type_text = col_character()
-## )</code></pre>
-<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
-## a multiple of vector length (arg 1)</code></pre>
-<pre><code>## Warning: 45 parsing failures.
-## row # A tibble: 5 x 5 col     row   col  expected    actual expected   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt; actual 1     1  &lt;NA&gt; 2 columns 3 columns file 2     2  &lt;NA&gt; 2 columns 3 columns row 3     3  &lt;NA&gt; 2 columns 3 columns col 4     4  &lt;NA&gt; 2 columns 3 columns expected 5     5  &lt;NA&gt; 2 columns 3 columns actual # ... with 1 more variables: file &lt;chr&gt;
-## ... ................. ... ................................. ........ ................................. ...... ................................. .... ................................. ... ................................. ... ................................. ........ ................................. ...... .......................................
-## See problems(...) for more details.</code></pre>
-<pre class="r"><code>head(datatype)</code></pre>
+datatype &lt;- read_tsv(url)
+head(datatype)</code></pre>
 <pre><code>## # A tibble: 6 x 2
 ##   data_type_code
 ##            &lt;chr&gt;
@@ -78,22 +67,8 @@ datatype &lt;- read_tsv(url)</code></pre>
 <p>Continuing, let’s retrieve the employment series data dictionary:</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.series&quot;
-series &lt;- read_tsv(url)</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   series_id = col_character(),
-##   supersector_code = col_character(),
-##   industry_code = col_character(),
-##   data_type_code = col_character(),
-##   seasonal = col_character(),
-##   series_title = col_character(),
-##   footnote_codes = col_character(),
-##   begin_year = col_integer(),
-##   begin_period = col_character(),
-##   end_year = col_integer(),
-##   end_period = col_character()
-## )</code></pre>
-<pre class="r"><code>head(series)</code></pre>
+series &lt;- read_tsv(url)
+head(series)</code></pre>
 <pre><code>## # A tibble: 6 x 11
 ##       series_id supersector_code industry_code data_type_code seasonal
 ##           &lt;chr&gt;            &lt;chr&gt;         &lt;chr&gt;          &lt;chr&gt;    &lt;chr&gt;
@@ -113,22 +88,8 @@ head(allseries)</code></pre>
 <p>I’m interested in the first record of the series data, All employees, thousands, total nonfarm, seasonally adjusted, so I decide to scale back. Instead of all data, I’ll download just the series that I’m seeking for this exercise.</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE&quot;
-series.01a &lt;- read_tsv(url)</code></pre>
-<pre><code>## Parsed with column specification:
-## cols(
-##   series_id = col_character(),
-##   year = col_integer(),
-##   period = col_character(),
-##   value = col_integer(),
-##   footnote_codes = col_character()
-## )</code></pre>
-<pre><code>## Warning in rbind(names(probs), probs_f): number of columns of result is not
-## a multiple of vector length (arg 1)</code></pre>
-<pre><code>## Warning: 321069 parsing failures.
-## row # A tibble: 5 x 5 col     row   col               expected actual expected   &lt;int&gt; &lt;chr&gt;                  &lt;chr&gt;  &lt;chr&gt; actual 1  5677 value no trailing characters     .4 file 2  5678 value no trailing characters     .5 row 3  5679 value no trailing characters     .5 col 4  5680 value no trailing characters     .1 expected 5  5681 value no trailing characters     .0 actual # ... with 1 more variables: file &lt;chr&gt;
-## ... ................. ... ........................................... ........ ........................................... ...... ........................................... .... ........................................... ... ........................................... ... ........................................... ........ ........................................... ...... .......................................
-## See problems(...) for more details.</code></pre>
-<pre class="r"><code>head(series.01a)</code></pre>
+series.01a &lt;- read_tsv(url)
+head(series.01a)</code></pre>
 <pre><code>## # A tibble: 6 x 5
 ##       series_id  year period value footnote_codes
 ##           &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;int&gt;          &lt;chr&gt;
@@ -168,7 +129,6 @@ series.01a &lt;- read_tsv(url)</code></pre>
 ## </code></pre>
 <pre class="r"><code>ggplot(series.01a, aes(x=year, y=value, colour=as.factor(series_id))) +
     geom_violin()</code></pre>
-<pre><code>## Warning: Removed 321069 rows containing non-finite values (stat_ydensity).</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot1-1.png" width="672" /></p>
 <p>Oh, that’s not entirely what I expected because I thought the description indicated this text file would be a single series. I need to understand why I have many series IDs eventually. Let’s replot on the first series ID, CES0000000001. I’ll replot and factor on year since I know that only one series is present.</p>
 <pre class="r"><code>series.01a %&gt;%
@@ -180,7 +140,6 @@ ggplot(aes(x=year, y=value, colour=as.factor(year))) +
     filter(series_id==&#39;CES0000000001&#39;) %&gt;%
 ggplot(aes(x=year, y=value, colour=as.factor(period))) +
     geom_violin()</code></pre>
-<pre><code>## Warning: position_dodge requires non-overlapping x intervals</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot3-1.png" width="672" /></p>
 <p>My suspicion is that this subset is unique on year and period.</p>
 <pre class="r"><code>series.01a%&gt;%
@@ -226,41 +185,6 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 <p>For reasons discussed by <a href="https://twitter.com/bizScienc">Business Science</a>, I’ll lean on the tidyquant package for impementing time series elements with this analysis.<br />
 My conversion to date solution was inspired by this stackoverflow <a href="https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date/6242980">post</a>.</p>
 <pre class="r"><code>library(tidyquant)</code></pre>
-<pre><code>## Loading required package: lubridate</code></pre>
-<pre><code>## 
-## Attaching package: &#39;lubridate&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:base&#39;:
-## 
-##     date</code></pre>
-<pre><code>## Loading required package: PerformanceAnalytics</code></pre>
-<pre><code>## Loading required package: xts</code></pre>
-<pre><code>## Loading required package: zoo</code></pre>
-<pre><code>## 
-## Attaching package: &#39;zoo&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     as.Date, as.Date.numeric</code></pre>
-<pre><code>## 
-## Attaching package: &#39;xts&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     first, last</code></pre>
-<pre><code>## 
-## Attaching package: &#39;PerformanceAnalytics&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:graphics&#39;:
-## 
-##     legend</code></pre>
-<pre><code>## Loading required package: quantmod</code></pre>
-<pre><code>## Loading required package: TTR</code></pre>
-<pre><code>## Version 0.4-0 included new data defaults. See ?getSymbols.</code></pre>
-<pre><code>## 
-## Attaching package: &#39;tidyquant&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     as_tibble</code></pre>
-<pre><code>## The following object is masked from &#39;package:tibble&#39;:
-## 
-##     as_tibble</code></pre>
 <pre class="r"><code>series.01a$date &lt;- as.yearmon(paste(series.01a$year,
                                  substr(series.01a$period, 2, 4),sep=&quot;-&quot;))</code></pre>
 <pre class="r"><code>fs &lt;- series.01a %&gt;%
@@ -272,8 +196,6 @@ filter(series_id==&#39;CES0000000001&#39;) %&gt;%
 <pre class="r"><code>fs %&gt;%
     ggplot(aes(x = date, y = chg)) +
     geom_segment(aes(xend = date, yend = 0, color = chg))</code></pre>
-<pre><code>## Don&#39;t know how to automatically pick scale for object of type yearmon. Defaulting to continuous.</code></pre>
-<pre><code>## Warning: Removed 1 rows containing missing values (geom_segment).</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot5-1.png" width="672" /></p>
 <p>I’m pleased at this point because I’m very close to my objective. There are a couple of messages that have me piqued, but I’m moving on for now.</p>
 <pre class="r"><code>fs %&gt;%
@@ -283,7 +205,6 @@ filter(series_id==&#39;CES0000000001&#39;) %&gt;%
     labs(title=&quot;Monthly jobs growth&quot;, subtitle=&quot;In thousands&quot;, y=&quot;&quot;, x=&quot;&quot;) + 
     theme_light() +
     theme(legend.position=&quot;none&quot;)</code></pre>
-<pre><code>## Don&#39;t know how to automatically pick scale for object of type yearmon. Defaulting to continuous.</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot6-1.png" width="672" /></p>
 <p>There is one more issue to resolve where the date field is being evaluated as continuous, and it’s causing the x-axis to line up very poorly. I think that I need to convert it from yearmon to date.</p>
 <pre class="r"><code>fs %&gt;%
