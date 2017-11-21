@@ -3,4 +3,4 @@ title: "About"
 date: "2016-05-05T21:48:51-07:00"
 ---
 
-This is a "hello world" example website for the [**blogdown**](https://github.com/rstudio/blogdown) package. The theme was forked from [@jrutheiser/hugo-lithium-theme](https://github.com/jrutheiser/hugo-lithium-theme) and modified by [Yihui Xie](https://github.com/yihui/hugo-lithium-theme).
+My name is Ben J. Jacobson. I'm a perpetual student of many things, including R, efficient handling of data, and maximizing information value. I hope this site affords me an avenue to share some of what I learn.

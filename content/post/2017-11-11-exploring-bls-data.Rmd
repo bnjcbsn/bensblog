@@ -164,11 +164,13 @@ My conversion to date solution was inspired by this stackoverflow [post](https:/
 library(tidyquant)
 ```
 
+Here, I use zoo::as.yearmon to convert the year and period fields to a more useful date field.  
 ```{r}
 series.01a$date <- as.yearmon(paste(series.01a$year,
                                  substr(series.01a$period, 2, 4),sep="-"))
 ```
 
+I filter for the series that I'm seeking, mutate a change value using dplyr::lag, and shed some fields that I don't need.
 ```{r}
 fs <- series.01a %>%
 filter(series_id=='CES0000000001') %>%
@@ -185,6 +187,7 @@ fs %>%
     ggplot(aes(x = date, y = chg)) +
     geom_segment(aes(xend = date, yend = 0, color = chg))
 ```
+
 
 I'm pleased at this point because I'm very close to my objective. There are a couple of messages that have me piqued, but I'm moving on for now.
 
@@ -210,3 +213,29 @@ fs %>%
     theme_light() +
     theme(legend.position="none")
 ```
+
+To conclude, the full code to produce the same chart from start to finish.
+```{r plot8}
+library(tidyverse)
+library(tidyquant)
+url <- "https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE"
+series.01a <- read_tsv(url)
+
+series.01a$date <- as.yearmon(paste(series.01a$year,
+                                 substr(series.01a$period, 2, 4),sep="-"))
+fs <- series.01a %>%
+    filter(series_id=='CES0000000001') %>%
+    mutate(chg=value-lag(value)) %>%
+    select(date, value, chg)
+
+fs %>%
+    mutate(date2=as.Date(date)) %>%
+    filter(date > 2007) %>%
+    ggplot(aes(x = date2, y = chg)) +
+    geom_segment(aes(xend = date2, yend = 0, color = chg)) + 
+    labs(title="Monthly jobs growth", subtitle="In thousands", y="", x="") + 
+    theme_light() +
+    theme(legend.position="none")  
+
+```
+

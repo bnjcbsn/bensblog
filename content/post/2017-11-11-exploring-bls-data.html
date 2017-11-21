@@ -185,8 +185,10 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 <p>For reasons discussed by <a href="https://twitter.com/bizScienc">Business Science</a>, I’ll lean on the tidyquant package for impementing time series elements with this analysis.<br />
 My conversion to date solution was inspired by this stackoverflow <a href="https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date/6242980">post</a>.</p>
 <pre class="r"><code>library(tidyquant)</code></pre>
+<p>Here, I use zoo::as.yearmon to convert the year and period fields to a more useful date field.</p>
 <pre class="r"><code>series.01a$date &lt;- as.yearmon(paste(series.01a$year,
                                  substr(series.01a$period, 2, 4),sep=&quot;-&quot;))</code></pre>
+<p>I filter for the series that I’m seeking, mutate a change value using dplyr::lag, and shed some fields that I don’t need.</p>
 <pre class="r"><code>fs &lt;- series.01a %&gt;%
 filter(series_id==&#39;CES0000000001&#39;) %&gt;%
     mutate(chg=value-lag(value)) %&gt;%
@@ -216,5 +218,27 @@ filter(series_id==&#39;CES0000000001&#39;) %&gt;%
     theme_light() +
     theme(legend.position=&quot;none&quot;)</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot7-1.png" width="672" /></p>
+<p>To conclude, the full code to produce the same chart from start to finish.</p>
+<pre class="r"><code>library(tidyverse)
+library(tidyquant)
+url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.data.01a.CurrentSeasAE&quot;
+series.01a &lt;- read_tsv(url)
+
+series.01a$date &lt;- as.yearmon(paste(series.01a$year,
+                                 substr(series.01a$period, 2, 4),sep=&quot;-&quot;))
+fs &lt;- series.01a %&gt;%
+    filter(series_id==&#39;CES0000000001&#39;) %&gt;%
+    mutate(chg=value-lag(value)) %&gt;%
+    select(date, value, chg)
+
+fs %&gt;%
+    mutate(date2=as.Date(date)) %&gt;%
+    filter(date &gt; 2007) %&gt;%
+    ggplot(aes(x = date2, y = chg)) +
+    geom_segment(aes(xend = date2, yend = 0, color = chg)) + 
+    labs(title=&quot;Monthly jobs growth&quot;, subtitle=&quot;In thousands&quot;, y=&quot;&quot;, x=&quot;&quot;) + 
+    theme_light() +
+    theme(legend.position=&quot;none&quot;)  </code></pre>
+<p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot8-1.png" width="672" /></p>
 </div>
 </div>
