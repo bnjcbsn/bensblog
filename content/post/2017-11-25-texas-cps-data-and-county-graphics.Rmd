@@ -10,6 +10,11 @@ tags:
   - Socrata
   - tigris
 ---
+```{r include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+```
 
 ```{r}
 library(hidden)
@@ -17,7 +22,6 @@ library(tidyverse)
 library(RSocrata)
 library(tigris)
 library(broom)
-library()
 ```
 
 This exercise will begin by exploring confirmed CPS abuse/neglect allegations in Texas from 2008 to 2016. The data is publicly available on the open data portal of [Texas.gov](https://data.texas.gov/), specifically, [CPS Abuse/Neglect Investigations Types of Abuse - Confirmed Allegations by County and Region FY08- FY16](https://data.texas.gov/Social-Services/CPS-Abuse-Neglect-Investigations-Types-of-Abuse-Co/9qeb-ewj9).  
@@ -47,7 +51,7 @@ df$type_of_allegation <- as.factor(df$type_of_allegation)
 df$fiscal_year <- lubridate::make_date(df$fiscal_year)
 ```
 
-```{r}
+```{r plot1}
 df %>%
     select(fiscal_year, type_of_allegation, confirmed_allegations) %>%
     group_by(fiscal_year, type_of_allegation) %>%
@@ -64,7 +68,7 @@ df %>%
 
 Inspired by this blog post by Michael Lee on his [blog](http://www.mikelee.co/posts/), I'm going to use the tigris package to obtain a shapefile of Texas counties.
 
-```{r}
+```{r, plot2}
 tx <- counties("texas", cb = TRUE)
 plot(tx)
 ```
