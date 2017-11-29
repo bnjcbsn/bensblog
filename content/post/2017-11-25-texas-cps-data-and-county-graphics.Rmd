@@ -2,13 +2,13 @@
 title: Texas CPS Data and County Graphics
 author: Ben Jacobson
 date: '2017-11-25'
-slug: texas-cps-data-and-county-graphics
 categories:
   - Draft
 tags:
-  - Texas Open Data
   - Socrata
+  - Texas Open Data
   - tigris
+slug: texas-cps-data-and-county-graphics
 ---
 ```{r include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
