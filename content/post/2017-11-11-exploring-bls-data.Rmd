@@ -1,20 +1,27 @@
 ---
-title: "Exploring BLS Data to Create My Own Jobs Report"
-author: "Ben Jacobson"
+title: Exploring BLS Data to Create My Own Jobs Report
+author: Ben Jacobson
 date: '2017-11-11'
+tags:
+  - BLS
 slug: exploring-bls-data
-tags: BLS
-categories: ["Draft"]
 ---
 ```{r include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(message = FALSE)
 ```
+# Post Objective
+This post is aiming to learn about the method involved in obtaining BLS data, a small amount of discovery, and also learning the workflow of RMarkdown -> GitHub -> Netlify that I've read about recently. Thanks to David Robinson and Yihui Xie for their tweets and documentation.
+
+`r htmltools::HTML("{{< tweet 930492543187513345 >}}")`  
+
+`r htmltools::HTML("{{< tweet 804732609171517440 >}}")` 
+
 # The BLS data availability  
-I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I did a quick web search a day later and decided to make a project of this chart from [here](https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/).  
+I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I lost track of the original image and elected to use a substitute. I did a web search a day later and decided to make a project of the chart below. (found [here](https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/)) I'm not trying to replicate it perfectly, but learn about BLS data acquisition and including plots in this post.
 ![](/MW_MonthlyJobs.jpg)
-It dawned on me this public data may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov (Bureau of Labor Statistics) to try to find out what is available and how to access it. The BLS offers a web interface, an API, and simple text files for accessing the data they routiely publish. To select a launching point, I always start out with a Google query and stackoverflow search. In top results, I discovered a package developed for BLS data access that was created by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
+It dawned on that public data such as monthly employment may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov (Bureau of Labor Statistics) to try to find out what is available and how to access it. The BLS offers a web interface, an API, and simple text files for accessing the data they routiely publish. To select a launching point, I always start out with a Google query and stackoverflow search. In top results, I discovered a package developed for BLS data access that was created by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
 https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
 
 The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site which I will lean away from if possible. I'm still trying to understand any benefits gained from either method over the other.   
@@ -22,7 +29,7 @@ The BLS site does offer text file downloads, and Kris' package uses that approac
 # Download BLS data  
 From the web search, a solution result that I chose is a stackoverflow [post](https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data) regarding how to read BLS text data directly in to R. This approach uses the text files published by the BLS and doesn't require their API. For simplicity, I decide to pursue this and table the API approach.  
 
-My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I carelessly copy in some code from the previous post and make an error.
+My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I copy in some code from the previous post just to see what happens.
 ```{r, eval=FALSE}
 url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
 header <- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
@@ -49,9 +56,9 @@ head(dat)
 
 It becomes apparent to me that in my first successful read, the row names are actually the first column. I don't expect to see this and the SO post doesn't identify this. But the SO solution does make more sense to address this. I'm curious at this point about how to define this structure. I want the results of the first read, but with the row names in the first column and the first column in the second column.
 
-Shit! All of a sudden, I can't download anything, drawing an error instead. [Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input] Back to kuberwein's discussion. 
+All of a sudden, I can't download anything, drawing an error instead. [Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input] Back to Mr. Eberwein's discussion. 
 
-Observing this code for inflation.R:
+Observing this code from inflation.R as a quick test:
 ```{r}
 #Load file from BLS servers
 temp <- tempfile()
@@ -76,7 +83,7 @@ I researched my tidyverse options and decided to give readr::read_tsv a try.
 library(tidyverse)
 url <- "https://download.bls.gov/pub/time.series/ce/ce.datatype"
 datatype <- read_tsv(url)
-head(datatype)
+knitr::kable(head(datatype))
 ```
 
 I'm not sure what's going on here because there are loads of messages but the results look complete. I'm switching to readr::read_tsv from this point for loading these files. Moving along...  
@@ -189,7 +196,7 @@ fs %>%
 ```
 
 
-I'm pleased at this point because I'm very close to my objective. There are a couple of messages that have me piqued, but I'm moving on for now.
+I'm pleased at this point because I'm very close to my objective. There are a couple of R messages that have me curious, but I'm plowing ahead as they're not show-stoppers.
 
 ```{r plot6}
 fs %>%
@@ -239,3 +246,4 @@ fs %>%
 
 ```
 
+Mission accomplished. A lot more could be learned about the BLS data, but I'm satisfied with what I've accomplished in this process. I still have some Git pieces to put together also. I'd also like to learn to wrap a post like this up with a reference list.
