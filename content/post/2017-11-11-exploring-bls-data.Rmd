@@ -184,7 +184,7 @@ filter(series_id=='CES0000000001') %>%
     mutate(chg=value-lag(value)) %>%
     select(date, value, chg)
 ```
-
+## Let's Plot!
 ```{r plot4}
 plot(fs)
 ```

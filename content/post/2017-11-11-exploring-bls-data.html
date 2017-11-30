@@ -222,6 +222,9 @@ My conversion to date solution was inspired by this stackoverflow <a href="https
 filter(series_id==&#39;CES0000000001&#39;) %&gt;%
     mutate(chg=value-lag(value)) %&gt;%
     select(date, value, chg)</code></pre>
+</div>
+<div id="lets-plot" class="section level2">
+<h2>Let’s Plot!</h2>
 <pre class="r"><code>plot(fs)</code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot4-1.png" width="672" /> Inspired by tidyquant vignette, “<a href="https://cran.r-project.org/web/packages/tidyquant/vignettes/TQ04-charting-with-tidyquant.html">Charting with Tidyquant</a>”, from Example 3, Charting volume with geom_segment.</p>
 <pre class="r"><code>fs %&gt;%
