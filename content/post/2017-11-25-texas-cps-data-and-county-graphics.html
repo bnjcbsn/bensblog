@@ -1,23 +1,24 @@
 ---
-title: Texas CPS Data and County Graphics
-author: Ben Jacobson
+title: "Texas CPS Data and County Graphics"
+author: "Ben Jacobson"
 date: '2017-11-25'
-categories:
-  - Draft
-tags:
-  - Socrata
-  - Texas Open Data
-  - tigris
+categories: Draft
+nocite: |
+  @R-RSocrata
+  @R-tidyverse
+  @R-tigris
+  @R-broom
+  @R-hidden
 slug: texas-cps-data-and-county-graphics
+tags:
+- Socrata
+- Texas Open Data
+- tigris
+bibliography: packages2.bib
 ---
 
 
 
-<pre class="r"><code>library(hidden)
-library(tidyverse)
-library(RSocrata)
-library(tigris)
-library(broom)</code></pre>
 <p>This exercise will begin by exploring confirmed CPS abuse/neglect allegations in Texas from 2008 to 2016. The data is publicly available on the open data portal of <a href="https://data.texas.gov/">Texas.gov</a>, specifically, <a href="https://data.texas.gov/Social-Services/CPS-Abuse-Neglect-Investigations-Types-of-Abuse-Co/9qeb-ewj9">CPS Abuse/Neglect Investigations Types of Abuse - Confirmed Allegations by County and Region FY08- FY16</a>.</p>
 <p>Get my Socrata token…</p>
 <pre class="r"><code>tok &lt;- hidden::get_Texas_Socrata_token()</code></pre>
@@ -62,11 +63,11 @@ df$fiscal_year &lt;- lubridate::make_date(df$fiscal_year)</code></pre>
     facet_wrap(~type_of_allegation, scales = &quot;free_y&quot;) +
     labs(title=&quot;Texas Confirmed Abuse/Neglect Cases&quot;,
          caption=&quot;Source: Texas Open Data, data.texas.gov&quot;)</code></pre>
-<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot1-1.png" width="672" /></p>
+<p><img src="2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot1-1.png" width="672" /></p>
 <p>Inspired by this blog post by Michael Lee on his <a href="http://www.mikelee.co/posts/">blog</a>, I’m going to use the tigris package to obtain a shapefile of Texas counties.</p>
 <pre class="r"><code>tx &lt;- counties(&quot;texas&quot;, cb = TRUE)
 plot(tx)</code></pre>
-<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot2-1.png" width="672" /></p>
+<p><img src="2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot2-1.png" width="672" /></p>
 <p>But, how do I merge the data into this shapefile to produce the map plot that I’m seeking?</p>
 <p>(<a href="http://zevross.com/blog/2015/10/14/manipulating-and-mapping-us-census-data-in-r-using-the-acs-tigris-and-leaflet-packages-3/#plotting-with-ggplot2" class="uri">http://zevross.com/blog/2015/10/14/manipulating-and-mapping-us-census-data-in-r-using-the-acs-tigris-and-leaflet-packages-3/#plotting-with-ggplot2</a>)</p>
 <p>The R help for fortify informs users “Rather than using this function, I now recommend using the broom package, which implements a much wider range of methods. fortify may be deprecated in the future.”</p>
@@ -140,7 +141,7 @@ summary(dfsp2@data)</code></pre>
 ## $ fiscal_year           &lt;date&gt; 2008-01-01, 2008-01-01, 2008-01-01, 200...
 ## $ region                &lt;chr&gt; &quot;11-Edinburg&quot;, &quot;11-Edinburg&quot;, &quot;7-Austin&quot;...
 ## $ type_of_allegation    &lt;fctr&gt; Emotional Abuse, Emotional Abuse, Medic...</code></pre>
-<p>We have a single NA in fiscal_year that I’m interested in.</p>
+<p>We have a single NA in fiscal_year that I’m interested in, but it does look like it’s appropriate.</p>
 <pre class="r"><code>dfsp2@data[is.na(dfsp2@data$fiscal_year),]</code></pre>
 <pre><code>##     STATEFP COUNTYFP COUNTYNS       AFFGEOID GEOID   NAME LSAD      ALAND
 ## 882      48      301 01383936 0500000US48301 48301 Loving   06 1732508024
@@ -148,3 +149,23 @@ summary(dfsp2@data)</code></pre>
 ## 882 20151852                    NA   &lt;NA&gt;        &lt;NA&gt;   &lt;NA&gt;
 ##     type_of_allegation
 ## 882               &lt;NA&gt;</code></pre>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-R-RSocrata">
+<p>Devlin, Hugh, Ph. D., Tom Schenk, Jr., and John Malc. 2017. <em>RSocrata: Download or Upload ’Socrata’ Data Sets</em>. <a href="https://CRAN.R-project.org/package=RSocrata" class="uri">https://CRAN.R-project.org/package=RSocrata</a>.</p>
+</div>
+<div id="ref-R-hidden">
+<p>Jacobson, Ben. 2017. <em>Hidden: Loads Private Variables</em>.</p>
+</div>
+<div id="ref-R-broom">
+<p>Robinson, David. 2017. <em>Broom: Convert Statistical Analysis Objects into Tidy Data Frames</em>. <a href="https://CRAN.R-project.org/package=broom" class="uri">https://CRAN.R-project.org/package=broom</a>.</p>
+</div>
+<div id="ref-R-tigris">
+<p>Walker, Kyle. 2017. <em>Tigris: Load Census Tiger/Line Shapefiles into R</em>. <a href="https://CRAN.R-project.org/package=tigris" class="uri">https://CRAN.R-project.org/package=tigris</a>.</p>
+</div>
+<div id="ref-R-tidyverse">
+<p>Wickham, Hadley. 2017. <em>Tidyverse: Easily Install and Load the ’Tidyverse’</em>. <a href="https://CRAN.R-project.org/package=tidyverse" class="uri">https://CRAN.R-project.org/package=tidyverse</a>.</p>
+</div>
+</div>
+</div>

@@ -1,14 +1,20 @@
 ---
-title: Texas CPS Data and County Graphics
-author: Ben Jacobson
+title: "Texas CPS Data and County Graphics"
+author: "Ben Jacobson"
 date: '2017-11-25'
-categories:
-  - Draft
-tags:
-  - Socrata
-  - Texas Open Data
-  - tigris
+categories: Draft
+nocite: |
+  @R-RSocrata
+  @R-tidyverse
+  @R-tigris
+  @R-broom
+  @R-hidden
 slug: texas-cps-data-and-county-graphics
+tags:
+- Socrata
+- Texas Open Data
+- tigris
+bibliography: packages2.bib
 ---
 ```{r include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
@@ -16,12 +22,13 @@ knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(message = FALSE)
 ```
 
-```{r}
+```{r, include = FALSE}
 library(hidden)
 library(tidyverse)
 library(RSocrata)
 library(tigris)
 library(broom)
+knitr::write_bib(.packages(), "packages2.bib") 
 ```
 
 This exercise will begin by exploring confirmed CPS abuse/neglect allegations in Texas from 2008 to 2016. The data is publicly available on the open data portal of [Texas.gov](https://data.texas.gov/), specifically, [CPS Abuse/Neglect Investigations Types of Abuse - Confirmed Allegations by County and Region FY08- FY16](https://data.texas.gov/Social-Services/CPS-Abuse-Neglect-Investigations-Types-of-Abuse-Co/9qeb-ewj9).  
@@ -96,8 +103,9 @@ This performed a left join
 glimpse(dfsp2@data)
 ```
 
-We have a single NA in fiscal_year that I'm interested in.
+We have a single NA in fiscal_year that I'm interested in, but it does look like it's appropriate.
 ```{r}
 dfsp2@data[is.na(dfsp2@data$fiscal_year),]
 ```
 
+# References  

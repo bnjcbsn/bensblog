@@ -4,7 +4,11 @@ author: Ben Jacobson
 date: '2017-11-11'
 tags:
   - BLS
+nocite: |
+  @R-tidyverse
+  @R-tidyquant  
 slug: exploring-bls-data
+bibliography: packages1.bib
 ---
 ```{r include=FALSE}
 knitr::opts_chunk$set(cache=TRUE)
@@ -247,3 +251,9 @@ fs %>%
 ```
 
 Mission accomplished. A lot more could be learned about the BLS data, but I'm satisfied with what I've accomplished in this process. I still have some Git pieces to put together also. I'd also like to learn to wrap a post like this up with a reference list.
+```{r, include= FALSE}
+knitr::write_bib(.packages(), "packages1.bib") 
+```
+
+# References  
+
