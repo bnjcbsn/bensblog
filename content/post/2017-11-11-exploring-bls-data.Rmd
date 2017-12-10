@@ -26,17 +26,15 @@ This post is aiming to learn about the method involved in obtaining BLS data, a 
 `r htmltools::HTML("{{< tweet 804732609171517440 >}}")` 
 
 # The BLS data availability  
-I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I lost track of the original image and elected to use a substitute. I did a web search a day later and decided to make a project of the chart below. (found [here](https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/)) I'm not trying to replicate it perfectly, but learn about BLS data acquisition and including plots in this post.
+I became curious about this subject following a tweet by a bank with an [infographic](http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede) regarding the November jobs report. I lost track of the original image and elected to use a substitute. I did a web search a day later and decided to make a project of the chart below. (found [here](https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/)) I'm not trying to replicate it perfectly, but to learn about BLS data acquisition and learn about including plots in a post such as this.
 ![](/MW_MonthlyJobs.jpg)
-It dawned on that public data such as monthly employment may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov (Bureau of Labor Statistics) to try to find out what is available and how to access it. The BLS offers a web interface, an API, and simple text files for accessing the data they routiely publish. To select a launching point, I always start out with a Google query and stackoverflow search. In top results, I discovered a package developed for BLS data access that was created by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
-https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html
-
+It dawned on that public data with updates, such as monthly employment, may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov (Bureau of Labor Statistics) to try to find out what is available and how to access it. The BLS offers a web interface, an API, and simple text files for accessing the data they routinely publish. To select a launching point, I always start out with a Google query and stackoverflow search. In top results, I discovered a package developed for BLS data access that was created by Kris Eberwein, [blscrapeR](https://cran.r-project.org/web/packages/blscrapeR/index.html).  
 The BLS site does offer text file downloads, and Kris' package uses that approach, but seems centered on using the API for the site which I will lean away from if possible. I'm still trying to understand any benefits gained from either method over the other.   
 
 # Download BLS data  
 From the web search, a solution result that I chose is a stackoverflow [post](https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data) regarding how to read BLS text data directly in to R. This approach uses the text files published by the BLS and doesn't require their API. For simplicity, I decide to pursue this and table the API approach.  
 
-My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I copy in some code from the previous post just to see what happens.
+My first attempt to download follows. Notice that I've loaded no packages yet. This is base R. I copy in some code from the previous post just to see what happens. [WARNING! Stack Overflow copy-paste follows]
 ```{r, eval=FALSE}
 url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
 header <- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
@@ -46,7 +44,7 @@ head(df)
 
 [Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input]
 
-I'll try that again, but include all results.
+I'll try that again, but with an edit.
 
 ```{r, eval=FALSE}
 url <- "http://download.bls.gov/pub/time.series/oe/oe.datatype"
@@ -78,14 +76,14 @@ That worked!
 
 What gives here? I have no idea why read.delim was working and then began failing. I may return to that at some point in the future.
 
-Let's try a package, turning straight to the tidyverse. This first attempt works, but doesn't produce appropriate results.
+Let's try a package, turning straight to the tidyverse. This first attempt works inline, but not when rendered.
 
-```{r, eval=FALSE}
+```{r, eval = FALSE}
 library(tidyverse)
 df <- read_delim(url, delim = "\t")
 head(df)
 ```
-I researched my tidyverse options and decided to give readr::read_tsv a try.
+I researched my tidyverse options and decide to also give readr::read_tsv a try.
 ```{r}
 library(tidyverse)
 url <- "https://download.bls.gov/pub/time.series/ce/ce.datatype"
@@ -93,7 +91,7 @@ datatype <- read_tsv(url)
 knitr::kable(head(datatype))
 ```
 
-I'm not sure what's going on here because there are loads of messages but the results look complete. I'm switching to readr::read_tsv from this point for loading these files. Moving along...  
+I'm not sure what's going on here because there are loads of messages but the results look complete. I think this is just one of those verbose functions. I'm switching to readr::read_tsv from this point for loading these files. Moving along...  
 
 There is extensive information provided by BLS on their text files found  [here](https://download.bls.gov/pub/time.series/ce/ce.txt), of course, in text form. The full list of text files available are found [here](https://download.bls.gov/pub/time.series/ce/).  
 
@@ -171,7 +169,7 @@ series.01a%>%
 I'm very satisfied with these comparisons, where grouping and summarizing the row count remains equal. I'd like to test that each year and period occurs exactly once.  
 
 ## Time Series Conversion  
-For reasons discussed by [Business Science](https://twitter.com/bizScienc), I'll lean on the tidyquant package for impementing time series elements with this analysis.  
+Leaning toward the tidy workflow, I'll rely on the tidyquant package for implementing time series elements with this analysis.  
 My conversion to date solution was inspired by this stackoverflow [post](https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date/6242980).
 
 ```{r}
@@ -253,7 +251,7 @@ fs %>%
 
 ```
 
-Mission accomplished. A lot more could be learned about the BLS data, but I'm satisfied with what I've accomplished in this process. I still have some Git pieces to put together also. I'd also like to learn to wrap a post like this up with a reference list.
+Mission accomplished. A lot more could be learned about the BLS data, but I'm satisfied with what I've accomplished in this process. The results here provide me with a launch pad for more complex BLS data analysis. I still have some Git pieces to put together. 
 ```{r, include= FALSE}
 library(blscrapeR)
 knitr::write_bib(.packages(), "packages1.bib") 

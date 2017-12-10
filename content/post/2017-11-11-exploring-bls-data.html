@@ -24,20 +24,19 @@ bibliography: packages1.bib
 </div>
 <div id="the-bls-data-availability" class="section level1">
 <h1>The BLS data availability</h1>
-<p>I became curious about this subject following a tweet by a bank with an <a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede">infographic</a> regarding the November jobs report. I lost track of the original image and elected to use a substitute. I did a web search a day later and decided to make a project of the chart below. (found <a href="https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/">here</a>) I’m not trying to replicate it perfectly, but learn about BLS data acquisition and including plots in this post. <img src="/MW_MonthlyJobs.jpg" /> It dawned on that public data such as monthly employment may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov (Bureau of Labor Statistics) to try to find out what is available and how to access it. The BLS offers a web interface, an API, and simple text files for accessing the data they routiely publish. To select a launching point, I always start out with a Google query and stackoverflow search. In top results, I discovered a package developed for BLS data access that was created by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>.<br />
-<a href="https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html" class="uri">https://cran.r-project.org/web/packages/blscrapeR/vignettes/Employment_and_Unemployment.html</a></p>
-<p>The BLS site does offer text file downloads, and Kris’ package uses that approach, but seems centered on using the API for the site which I will lean away from if possible. I’m still trying to understand any benefits gained from either method over the other.</p>
+<p>I became curious about this subject following a tweet by a bank with an <a href="http://ei.marketwatch.com//Multimedia/2016/12/02/Photos/ZH/MW-FB220_jobs_g_20161202093708_ZH.jpg?uuid=cd745c42-b89c-11e6-9b93-001cc448aede">infographic</a> regarding the November jobs report. I lost track of the original image and elected to use a substitute. I did a web search a day later and decided to make a project of the chart below. (found <a href="https://resources.onewire.com/finance-industry-news/november-jobs-report-falls-short-expectations/">here</a>) I’m not trying to replicate it perfectly, but to learn about BLS data acquisition and learn about including plots in a post such as this. <img src="/MW_MonthlyJobs.jpg" /> It dawned on that public data with updates, such as monthly employment, may prove useful for a post as my professional work is entirely not public for sharing. I visited bls.gov (Bureau of Labor Statistics) to try to find out what is available and how to access it. The BLS offers a web interface, an API, and simple text files for accessing the data they routinely publish. To select a launching point, I always start out with a Google query and stackoverflow search. In top results, I discovered a package developed for BLS data access that was created by Kris Eberwein, <a href="https://cran.r-project.org/web/packages/blscrapeR/index.html">blscrapeR</a>.<br />
+The BLS site does offer text file downloads, and Kris’ package uses that approach, but seems centered on using the API for the site which I will lean away from if possible. I’m still trying to understand any benefits gained from either method over the other.</p>
 </div>
 <div id="download-bls-data" class="section level1">
 <h1>Download BLS data</h1>
 <p>From the web search, a solution result that I chose is a stackoverflow <a href="https://stackoverflow.com/questions/36504590/reading-simple-text-file-into-r-bls-data">post</a> regarding how to read BLS text data directly in to R. This approach uses the text files published by the BLS and doesn’t require their API. For simplicity, I decide to pursue this and table the API approach.</p>
-<p>My first attempt to download follows. Notice that I’ve loaded no packages yet. This is base R. I copy in some code from the previous post just to see what happens.</p>
+<p>My first attempt to download follows. Notice that I’ve loaded no packages yet. This is base R. I copy in some code from the previous post just to see what happens. [WARNING! Stack Overflow copy-paste follows]</p>
 <pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
 header &lt;- read.delim(url, nrows = 1, header = FALSE, stringsAsFactors = FALSE)
 names(df) &lt;- header
 head(df)</code></pre>
 <p>[Error in read.table(file = file, header = header, sep = sep, quote = quote, : no lines available in input]</p>
-<p>I’ll try that again, but include all results.</p>
+<p>I’ll try that again, but with an edit.</p>
 <pre class="r"><code>url &lt;- &quot;http://download.bls.gov/pub/time.series/oe/oe.datatype&quot;
 dat &lt;- read.delim(url, stringsAsFactors = FALSE)
 head(dat)</code></pre>
@@ -55,11 +54,11 @@ download.file(&quot;https://download.bls.gov/pub/time.series/cu/cu.data.1.AllIte
 unlink(temp)</code></pre>
 <p>That worked!</p>
 <p>What gives here? I have no idea why read.delim was working and then began failing. I may return to that at some point in the future.</p>
-<p>Let’s try a package, turning straight to the tidyverse. This first attempt works, but doesn’t produce appropriate results.</p>
+<p>Let’s try a package, turning straight to the tidyverse. This first attempt works inline, but not when rendered.</p>
 <pre class="r"><code>library(tidyverse)
 df &lt;- read_delim(url, delim = &quot;\t&quot;)
 head(df)</code></pre>
-<p>I researched my tidyverse options and decided to give readr::read_tsv a try.</p>
+<p>I researched my tidyverse options and decide to also give readr::read_tsv a try.</p>
 <pre class="r"><code>library(tidyverse)
 url &lt;- &quot;https://download.bls.gov/pub/time.series/ce/ce.datatype&quot;
 datatype &lt;- read_tsv(url)
@@ -98,7 +97,7 @@ knitr::kable(head(datatype))</code></pre>
 </tr>
 </tbody>
 </table>
-<p>I’m not sure what’s going on here because there are loads of messages but the results look complete. I’m switching to readr::read_tsv from this point for loading these files. Moving along…</p>
+<p>I’m not sure what’s going on here because there are loads of messages but the results look complete. I think this is just one of those verbose functions. I’m switching to readr::read_tsv from this point for loading these files. Moving along…</p>
 <p>There is extensive information provided by BLS on their text files found <a href="https://download.bls.gov/pub/time.series/ce/ce.txt">here</a>, of course, in text form. The full list of text files available are found <a href="https://download.bls.gov/pub/time.series/ce/">here</a>.</p>
 <p>Continuing, let’s retrieve the employment series data dictionary:</p>
 <pre class="r"><code>library(tidyverse)
@@ -218,7 +217,7 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 </div>
 <div id="time-series-conversion" class="section level2">
 <h2>Time Series Conversion</h2>
-<p>For reasons discussed by <a href="https://twitter.com/bizScienc">Business Science</a>, I’ll lean on the tidyquant package for impementing time series elements with this analysis.<br />
+<p>Leaning toward the tidy workflow, I’ll rely on the tidyquant package for implementing time series elements with this analysis.<br />
 My conversion to date solution was inspired by this stackoverflow <a href="https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date/6242980">post</a>.</p>
 <pre class="r"><code>library(tidyquant)</code></pre>
 <p>Here, I use zoo::as.yearmon to convert the year and period fields to a more useful date field.</p>
@@ -279,7 +278,7 @@ fs %&gt;%
     theme_light() +
     theme(legend.position=&quot;none&quot;)  </code></pre>
 <p><img src="/post/2017-11-11-exploring-bls-data_files/figure-html/plot8-1.png" width="672" /></p>
-<p>Mission accomplished. A lot more could be learned about the BLS data, but I’m satisfied with what I’ve accomplished in this process. I still have some Git pieces to put together also. I’d also like to learn to wrap a post like this up with a reference list.</p>
+<p>Mission accomplished. A lot more could be learned about the BLS data, but I’m satisfied with what I’ve accomplished in this process. The results here provide me with a launch pad for more complex BLS data analysis. I still have some Git pieces to put together.</p>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
