@@ -3,22 +3,26 @@ title: "Texas CPS Data and County Graphics"
 author: "Ben Jacobson"
 date: '2017-11-25'
 categories: Draft
+link-citations: true
 nocite: |
   @R-RSocrata
   @R-tidyverse
   @R-tigris
   @R-broom
   @R-hidden
+  @lovelace2014introduction
 slug: texas-cps-data-and-county-graphics
 tags:
 - Socrata
 - Texas Open Data
 - tigris
-bibliography: packages2.bib
+bibliography: [packages2.bib, articles2.bib]
 ---
 
 
 
+<div id="exploring-texas-cps-data-with-maps" class="section level1">
+<h1>Exploring Texas CPS data, with maps</h1>
 <p>This exercise will begin by exploring confirmed CPS abuse/neglect allegations in Texas from 2008 to 2016. The data is publicly available on the open data portal of <a href="https://data.texas.gov/">Texas.gov</a>, specifically, <a href="https://data.texas.gov/Social-Services/CPS-Abuse-Neglect-Investigations-Types-of-Abuse-Co/9qeb-ewj9">CPS Abuse/Neglect Investigations Types of Abuse - Confirmed Allegations by County and Region FY08- FY16</a>.</p>
 <p>Get my Socrata token…</p>
 <pre class="r"><code>tok &lt;- hidden::get_Texas_Socrata_token()</code></pre>
@@ -63,11 +67,11 @@ df$fiscal_year &lt;- lubridate::make_date(df$fiscal_year)</code></pre>
     facet_wrap(~type_of_allegation, scales = &quot;free_y&quot;) +
     labs(title=&quot;Texas Confirmed Abuse/Neglect Cases&quot;,
          caption=&quot;Source: Texas Open Data, data.texas.gov&quot;)</code></pre>
-<p><img src="2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot1-1.png" width="672" /></p>
-<p>Inspired by this blog post by Michael Lee on his <a href="http://www.mikelee.co/posts/">blog</a>, I’m going to use the tigris package to obtain a shapefile of Texas counties.</p>
+<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot1-1.png" width="672" /></p>
+<p>I’m motivated to visualize some of the available CPS data on a Texas map, presenting measures a coloring and shading of the counties. Inspired by this post by Michael Lee on his <a href="http://www.mikelee.co/posts/">blog</a>, I’m going to use the tigris package to obtain a shapefile of Texas counties.</p>
 <pre class="r"><code>tx &lt;- counties(&quot;texas&quot;, cb = TRUE)
 plot(tx)</code></pre>
-<p><img src="2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot2-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot2-1.png" width="672" /></p>
 <p>But, how do I merge the data into this shapefile to produce the map plot that I’m seeking?</p>
 <p>(<a href="http://zevross.com/blog/2015/10/14/manipulating-and-mapping-us-census-data-in-r-using-the-acs-tigris-and-leaflet-packages-3/#plotting-with-ggplot2" class="uri">http://zevross.com/blog/2015/10/14/manipulating-and-mapping-us-census-data-in-r-using-the-acs-tigris-and-leaflet-packages-3/#plotting-with-ggplot2</a>)</p>
 <p>The R help for fortify informs users “Rather than using this function, I now recommend using the broom package, which implements a much wider range of methods. fortify may be deprecated in the future.”</p>
@@ -80,7 +84,7 @@ head(dfsp)</code></pre>
 ## 4 -97.12074 28.25584     4 FALSE     1 227.1 227
 ## 5 -97.11935 28.25632     5 FALSE     1 227.1 227
 ## 6 -97.11756 28.25913     6 FALSE     1 227.1 227</code></pre>
-<p>That outcome doesn’t appear to help me join the CPS data with this spatial data frame (SDF). I’m also very curious if it’s possible to tidyverse this workflow. It doesn’t appear so, but I intend to research this. The tigris package includes a function designed for merging data to an SDF, geo_join. I wonder if I can join these on Texas county names.</p>
+<p>That outcome doesn’t appear to help me join the CPS data with this spatial data frame (SDF). I’m also very curious if it’s possible to tidyverse this workflow. It doesn’t appear so at this point, but I intend to research this. The tigris package includes a function designed for merging data to an SDF, geo_join. I wonder if I can join these on Texas county names.</p>
 <pre class="r"><code>dfsp2 &lt;- geo_join(tx, df, &#39;NAME&#39;, &#39;county&#39;)
 summary(dfsp2@data)</code></pre>
 <pre><code>##    STATEFP            COUNTYFP           COUNTYNS        
@@ -123,7 +127,7 @@ summary(dfsp2@data)</code></pre>
 ##                     Physical Abuse        : 3      
 ##                     (Other)               : 0      
 ##                     NA&#39;s                  : 1</code></pre>
-<p>This performed a left join</p>
+<p>This performed a left join, but this is not appropriate as the data that I was joining in had many rows per Texas county. I’m skeptical of this path.</p>
 <pre class="r"><code>glimpse(dfsp2@data)</code></pre>
 <pre><code>## Observations: 254
 ## Variables: 14
@@ -141,22 +145,127 @@ summary(dfsp2@data)</code></pre>
 ## $ fiscal_year           &lt;date&gt; 2008-01-01, 2008-01-01, 2008-01-01, 200...
 ## $ region                &lt;chr&gt; &quot;11-Edinburg&quot;, &quot;11-Edinburg&quot;, &quot;7-Austin&quot;...
 ## $ type_of_allegation    &lt;fctr&gt; Emotional Abuse, Emotional Abuse, Medic...</code></pre>
+<p>I’d like to try a full join to see what happens, but the only choices are left or inner joins. Leaving no stone unturned, I attempt with inner join but the results are the same. I’ll examine this output a little bit, but I’ll have to branch into a different direction to make some progress toward my objective.</p>
+<pre class="r"><code>dfsp2 &lt;- geo_join(tx, df, &#39;NAME&#39;, &#39;county&#39;, how = &quot;inner&quot;)
+summary(dfsp2@data)</code></pre>
+<pre><code>##    STATEFP            COUNTYFP           COUNTYNS        
+##  Length:253         Length:253         Length:253        
+##  Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character  
+##                                                          
+##                                                          
+##                                                          
+##                                                          
+##    AFFGEOID            GEOID               NAME          
+##  Length:253         Length:253         Length:253        
+##  Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character  
+##                                                          
+##                                                          
+##                                                          
+##                                                          
+##      LSAD              ALAND              AWATER         
+##  Length:253         Length:253         Length:253        
+##  Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character  
+##                                                          
+##                                                          
+##                                                          
+##                                                          
+##  confirmed_allegations    county           fiscal_year        
+##  Min.   :  1.000       Length:253         Min.   :2008-01-01  
+##  1st Qu.:  1.000       Class :character   1st Qu.:2008-01-01  
+##  Median :  3.000       Mode  :character   Median :2008-01-01  
+##  Mean   :  6.945                          Mean   :2008-01-28  
+##  3rd Qu.:  6.000                          3rd Qu.:2008-01-01  
+##  Max.   :124.000                          Max.   :2014-01-01  
+##                                                               
+##     region                       type_of_allegation
+##  Length:253         Emotional Abuse       :75      
+##  Class :character   Neglectful Supervision:63      
+##  Mode  :character   Medical Neglect       :57      
+##                     Abandonment           :55      
+##                     Physical Abuse        : 3      
+##                     Labor Trafficking     : 0      
+##                     (Other)               : 0</code></pre>
 <p>We have a single NA in fiscal_year that I’m interested in, but it does look like it’s appropriate.</p>
 <pre class="r"><code>dfsp2@data[is.na(dfsp2@data$fiscal_year),]</code></pre>
-<pre><code>##     STATEFP COUNTYFP COUNTYNS       AFFGEOID GEOID   NAME LSAD      ALAND
-## 882      48      301 01383936 0500000US48301 48301 Loving   06 1732508024
-##       AWATER confirmed_allegations county fiscal_year region
-## 882 20151852                    NA   &lt;NA&gt;        &lt;NA&gt;   &lt;NA&gt;
-##     type_of_allegation
-## 882               &lt;NA&gt;</code></pre>
+<pre><code>##  [1] STATEFP               COUNTYFP              COUNTYNS             
+##  [4] AFFGEOID              GEOID                 NAME                 
+##  [7] LSAD                  ALAND                 AWATER               
+## [10] confirmed_allegations county                fiscal_year          
+## [13] region                type_of_allegation   
+## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<p>Now, dfsp2 is just the tx dataframe, but with five new variables. The path toward plotting with these variables represented remains out of arm’s reach.</p>
+<pre class="r"><code>plot(dfsp2)</code></pre>
+<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot3-1.png" width="672" /></p>
+<pre class="r"><code>ggplot() + 
+    geom_polygon(data = dfsp2, aes(group = group), colour = &quot;black&quot;, fill = NA)</code></pre>
+<div id="redirection" class="section level3">
+<h3>Redirection</h3>
+<p>According to H. Chen in an Rpubs post <span class="citation">(Chen <a href="#ref-chen_2017">2017</a>)</span>, I should take another shot at broom::tidy because I missed a parameter that should improve the results.</p>
+<pre class="r"><code>dfsp3 &lt;- tidy(tx, region = &quot;NAME&quot;)
+head(dfsp3)</code></pre>
+<pre><code>##        long      lat order  hole piece      group       id
+## 1 -96.06480 31.98066     1 FALSE     1 Anderson.1 Anderson
+## 2 -96.06305 31.98201     2 FALSE     1 Anderson.1 Anderson
+## 3 -96.06185 31.98516     3 FALSE     1 Anderson.1 Anderson
+## 4 -96.06078 31.98693     4 FALSE     1 Anderson.1 Anderson
+## 5 -96.05971 31.98742     5 FALSE     1 Anderson.1 Anderson
+## 6 -96.05763 31.98671     6 FALSE     1 Anderson.1 Anderson</code></pre>
+<p>Now I have lat and long associated with the county name. How well does this plot in it’s initial state? The initial code here is sourced from Chen <span class="citation">(Chen <a href="#ref-chen_2017">2017</a>)</span>.</p>
+<pre class="r"><code>ggplot() + 
+    geom_polygon(data = dfsp3, aes(x = long, y = lat, group = group), colour = &quot;black&quot;, fill = NA)</code></pre>
+<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot4-1.png" width="672" /></p>
+<p>My research diverges to a review of CRAN at the <a href="https://cran.r-project.org/view=Spatial">CRAN Task View: Analysis of Spatial Data</a>. This led me to a recent paper by Robin Lovelace and James Cheshire found in the task view fourth paragraph, which further led me to Robin Lovelace’s <a href="https://github.com/Robinlovelace/Creating-maps-in-R">Github repo</a> for the paper. I elect to accomplish my own version of the plot in figure 7 on page 12 of the paper as this looks like an excellent milestone. First, I need to resolve my own data issue and narrow down the DPS figures to a single variable per Texas county. Then, as the <span class="citation">Lovelace and Cheshire (<a href="#ref-lovelace2014introduction">2014</a>)</span> paper demonstrates, I’ll use dplyr to complete the join and tmap, a package first introduced to me in this paper. We’ll sum all allegations in 2016 per county and rename county to match the field in the spatial data. Then we’ll take a look at it before proceding with the join and plot.</p>
+<pre class="r"><code>confirmed_county_total &lt;- df %&gt;%
+    filter(fiscal_year==&quot;2016-01-01&quot;) %&gt;%
+    group_by(county) %&gt;%
+    summarize(confirmed_allegations=sum(confirmed_allegations, na.rm = TRUE)) %&gt;%
+    rename(NAME=county)
+glimpse(confirmed_county_total)</code></pre>
+<pre><code>## Observations: 245
+## Variables: 2
+## $ NAME                  &lt;chr&gt; &quot;Anderson&quot;, &quot;Andrews&quot;, &quot;Angelina&quot;, &quot;Aran...
+## $ confirmed_allegations &lt;int&gt; 278, 50, 323, 77, 13, 2, 221, 29, 17, 49...</code></pre>
+<pre class="r"><code>confirmed_county_total %&gt;%
+    arrange(desc(confirmed_allegations)) </code></pre>
+<pre><code>## # A tibble: 245 x 2
+##       NAME confirmed_allegations
+##      &lt;chr&gt;                 &lt;int&gt;
+##  1  Harris                  6638
+##  2 Tarrant                  5648
+##  3  Dallas                  5108
+##  4   Bexar                  5082
+##  5 El Paso                  2291
+##  6  Travis                  2245
+##  7 Hidalgo                  1522
+##  8  Collin                  1362
+##  9  Nueces                  1318
+## 10 Cameron                  1281
+## # ... with 235 more rows</code></pre>
+<p>The results are short 9 counties, but I don’t expect this to be an issue. I follow the guidelines in the paper on page 12 to complete the join. My understanding of data in R would never have led me to attempt this approach, so this teaches me something unrelated to what I’m trying to do at the moment.</p>
+<pre class="r"><code>tx@data &lt;- left_join(tx@data, confirmed_county_total)</code></pre>
+<pre class="r"><code>library(tmap)
+qtm(tx, &quot;confirmed_allegations&quot;) </code></pre>
+<p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot6-1.png" width="672" /></p>
+<p>I strongly suspect that if we plotted population, we’d see extremely similar patterns.</p>
+</div>
+</div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <div id="refs" class="references">
+<div id="ref-chen_2017">
+<p>Chen, Huanfa. 2017. “Plotting Shapefiles with Attributes Using Ggplot.” <em>Rpubs</em>. <a href="http://rpubs.com/huanfaChen/ggplotShapefile" class="uri">http://rpubs.com/huanfaChen/ggplotShapefile</a>.</p>
+</div>
 <div id="ref-R-RSocrata">
 <p>Devlin, Hugh, Ph. D., Tom Schenk, Jr., and John Malc. 2017. <em>RSocrata: Download or Upload ’Socrata’ Data Sets</em>. <a href="https://CRAN.R-project.org/package=RSocrata" class="uri">https://CRAN.R-project.org/package=RSocrata</a>.</p>
 </div>
 <div id="ref-R-hidden">
-<p>Jacobson, Ben. 2017. <em>Hidden: Loads Private Variables</em>.</p>
+<p>Jacobson, Ben. 2017. <em>Hidden: Loads Private Constants</em>.</p>
+</div>
+<div id="ref-lovelace2014introduction">
+<p>Lovelace, Robin, and James Cheshire. 2014. “Introduction to visualising spatial data in R.” <em>National Centre for Research Methods Working Papers</em> 14 (03). London: National Centre for Research Methods; NCRM. <a href="https://github.com/Robinlovelace/Creating-maps-in-R" class="uri">https://github.com/Robinlovelace/Creating-maps-in-R</a>.</p>
 </div>
 <div id="ref-R-broom">
 <p>Robinson, David. 2017. <em>Broom: Convert Statistical Analysis Objects into Tidy Data Frames</em>. <a href="https://CRAN.R-project.org/package=broom" class="uri">https://CRAN.R-project.org/package=broom</a>.</p>

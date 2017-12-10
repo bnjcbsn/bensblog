@@ -7,6 +7,9 @@ tags:
 nocite: |
   @R-tidyverse
   @R-tidyquant  
+  @R-blogdown
+  @R-knitr
+  @R-blscrapeR
 slug: exploring-bls-data
 bibliography: packages1.bib
 ---
@@ -136,7 +139,7 @@ head(series.01a)</code></pre>
 <div id="data-evaluation" class="section level2">
 <h2>Data Evaluation</h2>
 <pre class="r"><code>glimpse(series.01a)</code></pre>
-<pre><code>## Observations: 338,097
+<pre><code>## Observations: 339,004
 ## Variables: 5
 ## $ series_id      &lt;chr&gt; &quot;CES0000000001&quot;, &quot;CES0000000001&quot;, &quot;CES000000000...
 ## $ year           &lt;int&gt; 1939, 1939, 1939, 1939, 1939, 1939, 1939, 1939,...
@@ -145,15 +148,15 @@ head(series.01a)</code></pre>
 ## $ footnote_codes &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,...</code></pre>
 <pre class="r"><code>summary(series.01a)</code></pre>
 <pre><code>##   series_id              year         period              value       
-##  Length:338097      Min.   :1939   Length:338097      Min.   :   543  
-##  Class :character   1st Qu.:1994   Class :character   1st Qu.:  3899  
-##  Mode  :character   Median :2002   Mode  :character   Median : 10008  
-##                     Mean   :2000                      Mean   : 22400  
-##                     3rd Qu.:2010                      3rd Qu.: 22518  
-##                     Max.   :2017                      Max.   :147010  
-##                                                       NA&#39;s   :321069  
+##  Length:339004      Min.   :1939   Length:339004      Min.   :   543  
+##  Class :character   1st Qu.:1994   Class :character   1st Qu.:  3903  
+##  Mode  :character   Median :2002   Mode  :character   Median : 10010  
+##                     Mean   :2000                      Mean   : 22416  
+##                     3rd Qu.:2010                      3rd Qu.: 22520  
+##                     Max.   :2017                      Max.   :147241  
+##                                                       NA&#39;s   :321958  
 ##  footnote_codes    
-##  Length:338097     
+##  Length:339004     
 ##  Class :character  
 ##  Mode  :character  
 ##                    
@@ -177,7 +180,7 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 <p>My suspicion is that this subset is unique on year and period.</p>
 <pre class="r"><code>series.01a%&gt;%
     filter(series_id==&#39;CES0000000001&#39;)</code></pre>
-<pre><code>## # A tibble: 946 x 5
+<pre><code>## # A tibble: 947 x 5
 ##        series_id  year period value footnote_codes
 ##            &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;int&gt;          &lt;chr&gt;
 ##  1 CES0000000001  1939    M01 29923           &lt;NA&gt;
@@ -190,13 +193,13 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 ##  8 CES0000000001  1939    M08 30663           &lt;NA&gt;
 ##  9 CES0000000001  1939    M09 31032           &lt;NA&gt;
 ## 10 CES0000000001  1939    M10 31408           &lt;NA&gt;
-## # ... with 936 more rows</code></pre>
+## # ... with 937 more rows</code></pre>
 <pre class="r"><code>series.01a%&gt;%
     filter(series_id==&#39;CES0000000001&#39;) %&gt;%
     select(-footnote_codes) %&gt;%
     group_by(series_id, year, period) %&gt;%
     summarise_all(sum)</code></pre>
-<pre><code>## # A tibble: 946 x 4
+<pre><code>## # A tibble: 947 x 4
 ## # Groups:   series_id, year [?]
 ##        series_id  year period value
 ##            &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;int&gt;
@@ -210,7 +213,7 @@ ggplot(aes(x=year, y=value, colour=as.factor(period))) +
 ##  8 CES0000000001  1939    M08 30663
 ##  9 CES0000000001  1939    M09 31032
 ## 10 CES0000000001  1939    M10 31408
-## # ... with 936 more rows</code></pre>
+## # ... with 937 more rows</code></pre>
 <p>I’m very satisfied with these comparisons, where grouping and summarizing the row count remains equal. I’d like to test that each year and period occurs exactly once.</p>
 </div>
 <div id="time-series-conversion" class="section level2">
@@ -284,6 +287,9 @@ fs %&gt;%
 <div id="refs" class="references">
 <div id="ref-R-tidyquant">
 <p>Dancho, Matt, and Davis Vaughan. 2017. <em>Tidyquant: Tidy Quantitative Financial Analysis</em>. <a href="https://CRAN.R-project.org/package=tidyquant" class="uri">https://CRAN.R-project.org/package=tidyquant</a>.</p>
+</div>
+<div id="ref-R-blscrapeR">
+<p>Eberwein, Kris. 2017. <em>BlscrapeR: An Api Wrapper for the Bureau of Labor Statistics (Bls)</em>. <a href="https://CRAN.R-project.org/package=blscrapeR" class="uri">https://CRAN.R-project.org/package=blscrapeR</a>.</p>
 </div>
 <div id="ref-R-tidyverse">
 <p>Wickham, Hadley. 2017. <em>Tidyverse: Easily Install and Load the ’Tidyverse’</em>. <a href="https://CRAN.R-project.org/package=tidyverse" class="uri">https://CRAN.R-project.org/package=tidyverse</a>.</p>

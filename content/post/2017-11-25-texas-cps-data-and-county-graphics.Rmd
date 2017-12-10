@@ -3,21 +3,23 @@ title: "Texas CPS Data and County Graphics"
 author: "Ben Jacobson"
 date: '2017-11-25'
 categories: Draft
+link-citations: true
 nocite: |
   @R-RSocrata
   @R-tidyverse
   @R-tigris
   @R-broom
   @R-hidden
+  @lovelace2014introduction
 slug: texas-cps-data-and-county-graphics
 tags:
 - Socrata
 - Texas Open Data
 - tigris
-bibliography: packages2.bib
+bibliography: [packages2.bib, articles2.bib]
 ---
 ```{r include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
+# knitr::opts_chunk$set(cache=TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(message = FALSE)
 ```
@@ -30,6 +32,8 @@ library(tigris)
 library(broom)
 knitr::write_bib(.packages(), "packages2.bib") 
 ```
+
+# Exploring Texas CPS data, with maps
 
 This exercise will begin by exploring confirmed CPS abuse/neglect allegations in Texas from 2008 to 2016. The data is publicly available on the open data portal of [Texas.gov](https://data.texas.gov/), specifically, [CPS Abuse/Neglect Investigations Types of Abuse - Confirmed Allegations by County and Region FY08- FY16](https://data.texas.gov/Social-Services/CPS-Abuse-Neglect-Investigations-Types-of-Abuse-Co/9qeb-ewj9).  
 
@@ -73,9 +77,9 @@ df %>%
 
 
 
-Inspired by this blog post by Michael Lee on his [blog](http://www.mikelee.co/posts/), I'm going to use the tigris package to obtain a shapefile of Texas counties.
+I'm motivated to visualize some of the available CPS data on a Texas map, presenting measures a coloring and shading of the counties. Inspired by this post by Michael Lee on his [blog](http://www.mikelee.co/posts/), I'm going to use the tigris package to obtain a shapefile of Texas counties.
 
-```{r, plot2}
+```{r plot2}
 tx <- counties("texas", cb = TRUE)
 plot(tx)
 ```
@@ -92,20 +96,75 @@ dfsp <- tidy(tx)
 head(dfsp)
 ```
 
-That outcome doesn't appear to help me join the CPS data with this spatial data frame (SDF). I'm also very curious if it's possible to tidyverse this workflow. It doesn't appear so, but I intend to research this. The tigris package includes a function designed for merging data to an SDF, geo_join. I wonder if I can join these on Texas county names.
+That outcome doesn't appear to help me join the CPS data with this spatial data frame (SDF). I'm also very curious if it's possible to tidyverse this workflow. It doesn't appear so at this point, but I intend to research this. The tigris package includes a function designed for merging data to an SDF, geo_join. I wonder if I can join these on Texas county names.
 ```{r}
 dfsp2 <- geo_join(tx, df, 'NAME', 'county')
 summary(dfsp2@data)
 ```
 
-This performed a left join
+This performed a left join, but this is not appropriate as the data that I was joining in had many rows per Texas county. I'm skeptical of this path.
 ```{r}
 glimpse(dfsp2@data)
 ```
-
+I'd like to try a full join to see what happens, but the only choices are left or inner joins. Leaving no stone unturned, I attempt with inner join but the results are the same. I'll examine this output a little bit, but I'll have to branch into a different direction to make some progress toward my objective.
+```{r}
+dfsp2 <- geo_join(tx, df, 'NAME', 'county', how = "inner")
+summary(dfsp2@data)
+```
 We have a single NA in fiscal_year that I'm interested in, but it does look like it's appropriate.
 ```{r}
 dfsp2@data[is.na(dfsp2@data$fiscal_year),]
 ```
+
+Now, dfsp2 is just the tx dataframe, but with five new variables. The path toward plotting with these variables represented remains out of arm's reach.
+```{r plot3}
+plot(dfsp2)
+```
+
+```{r, eval = FALSE}
+ggplot() + 
+    geom_polygon(data = dfsp2, aes(group = group), colour = "black", fill = NA)
+```
+### Redirection
+According to H. Chen in an Rpubs post [@chen_2017], I should take another shot at broom::tidy because I missed a parameter that should improve the results.
+```{r}
+dfsp3 <- tidy(tx, region = "NAME")
+head(dfsp3)
+```
+
+Now I have lat and long associated with the county name. How well does this plot in it's initial state? The initial code here is sourced from Chen [@chen_2017]. 
+```{r plot4}
+ggplot() + 
+    geom_polygon(data = dfsp3, aes(x = long, y = lat, group = group), colour = "black", fill = NA)
+```
+
+My research diverges to a review of CRAN at the [CRAN Task View: Analysis of Spatial Data](https://cran.r-project.org/view=Spatial). This led me to a recent paper by Robin Lovelace and James Cheshire found in the task view fourth paragraph, which further led me to Robin Lovelace's [Github repo](https://github.com/Robinlovelace/Creating-maps-in-R) for the paper. 
+I elect to accomplish my own version of the plot in figure 7 on page 12 of the paper as this looks like an excellent milestone. First, I need to resolve my own data issue and narrow down the DPS figures to a single variable per Texas county. Then, as the @lovelace2014introduction paper demonstrates, I'll use dplyr to complete the join and tmap, a package first introduced to me in this paper. We'll sum all allegations in 2016 per county and rename county to match the field in the spatial data. Then we'll take a look at it before proceding with the join and plot.
+
+```{r}
+confirmed_county_total <- df %>%
+    filter(fiscal_year=="2016-01-01") %>%
+    group_by(county) %>%
+    summarize(confirmed_allegations=sum(confirmed_allegations, na.rm = TRUE)) %>%
+    rename(NAME=county)
+glimpse(confirmed_county_total)
+```
+```{r}
+confirmed_county_total %>%
+    arrange(desc(confirmed_allegations)) 
+```
+
+The results are short 9 counties, but I don't expect this to be an issue. I follow the guidelines in the paper on page 12 to complete the join. My understanding of data in R would never have led me to attempt this approach, so this teaches me something unrelated to what I'm trying to do at the moment.
+```{r}
+tx@data <- left_join(tx@data, confirmed_county_total)
+```
+
+```{r plot6}
+library(tmap)
+qtm(tx, "confirmed_allegations") 
+```
+
+I strongly suspect that if we plotted population, we'd see extremely similar patterns.
+
 
 # References  

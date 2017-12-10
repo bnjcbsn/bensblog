@@ -7,6 +7,9 @@ tags:
 nocite: |
   @R-tidyverse
   @R-tidyquant  
+  @R-blogdown
+  @R-knitr
+  @R-blscrapeR
 slug: exploring-bls-data
 bibliography: packages1.bib
 ---
@@ -252,6 +255,7 @@ fs %>%
 
 Mission accomplished. A lot more could be learned about the BLS data, but I'm satisfied with what I've accomplished in this process. I still have some Git pieces to put together also. I'd also like to learn to wrap a post like this up with a reference list.
 ```{r, include= FALSE}
+library(blscrapeR)
 knitr::write_bib(.packages(), "packages1.bib") 
 ```
 
