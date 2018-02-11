@@ -1,0 +1,58 @@
+---
+title: Getting Started with R
+author: Ben Jacobson
+date: '2018-02-10'
+slug: getting-started-with-r
+categories: []
+tags: []
+---
+
+About R: Used for fast speed processing of data from one or more sources. These may include ODBC, CSV files, Excel files. R can gather the data, munge it, join it, analyze it and when all done, create an Excel report and save it or email it. This is how I've personally used R the most and benefitted from it, but this is only scratching the surface. This page is created to be the introduction of r and related resources that I share with co-workers and friends.
+
+# Starting at the Home of R: Click around to learn about what R is and who is responsible for it.
+
+https://www.r-project.org/about.html
+
+# Installation: My favorite and proven guide to instruct on installation.
+
+https://canvas.harvard.edu/courses/11248/files/1752107
+
+# Introduction: Where I received my first R lessons by completing this in entirety.
+
+http://tryr.codeschool.com/
+
+# Concepts of Tidy Data: Good practice
+
+http://vita.had.co.nz/papers/tidy-data.pdf
+
+# Built-in exercises and lessons
+
+http://swirlstats.com/
+
+# Additional Learning Material: I completed five of the JHU Coursera courses in 2014.
+
+http://moderndive.com/
+
+https://www.coursera.org/specializations/jhu-data-science
+
+https://ocw.mit.edu/courses/sloan-school-of-management/15-097-prediction-machine-learning-and-statistics-spring-2012/lecture-notes/MIT15_097S12_lec02.pdf
+
+# Enterprise Examples
+
+https://medium.com/airbnb-engineering/using-r-packages-and-education-to-scale-data-science-at-airbnb-906faa58e12d
+
+https://peerj.com/preprints/3182.pdf
+
+http://blog.revolutionanalytics.com/2017/03/data-science-at-stitchfix.html
+
+# Online Community: Two public sources of ideas, code, and assistance.
+
+https://stackoverflow.com/questions/tagged/r
+
+https://github.com/search?utf8=%E2%9C%93&q=r&type=
+
+# Enterprise Resources: Tools for managing an enterprise development team.
+
+https://github.com/business
+
+https://www.stackoverflowbusiness.com/enterprise
