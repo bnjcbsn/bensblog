@@ -213,11 +213,11 @@ head(dfsp3)</code></pre>
 ## 4 -96.06078 31.98693     4 FALSE     1 Anderson.1 Anderson
 ## 5 -96.05971 31.98742     5 FALSE     1 Anderson.1 Anderson
 ## 6 -96.05763 31.98671     6 FALSE     1 Anderson.1 Anderson</code></pre>
-<p>Now I have lat and long associated with the county name. How well does this plot in it’s initial state? The initial code here is sourced from Chen <span class="citation">(Chen <a href="#ref-chen_2017">2017</a>)</span>.</p>
+<p>Now I have lat and long associated with the county name. How well does this plot in its initial state? The initial code here is sourced from Chen <span class="citation">(Chen <a href="#ref-chen_2017">2017</a>)</span>.</p>
 <pre class="r"><code>ggplot() + 
     geom_polygon(data = dfsp3, aes(x = long, y = lat, group = group), colour = &quot;black&quot;, fill = NA)</code></pre>
 <p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot4-1.png" width="672" /></p>
-<p>My research diverges to a review of CRAN at the <a href="https://cran.r-project.org/view=Spatial">CRAN Task View: Analysis of Spatial Data</a>. This led me to a recent paper by Robin Lovelace and James Cheshire found in the task view fourth paragraph, which further led me to Robin Lovelace’s <a href="https://github.com/Robinlovelace/Creating-maps-in-R">Github repo</a> for the paper. I elect to accomplish my own version of the plot in figure 7 on page 12 of the paper as this looks like an excellent milestone. First, I need to resolve my own data issue and narrow down the DPS figures to a single variable per Texas county. Then, as the <span class="citation">Lovelace and Cheshire (<a href="#ref-lovelace2014introduction">2014</a>)</span> paper demonstrates, I’ll use dplyr to complete the join and tmap, a package first introduced to me in this paper. We’ll sum all allegations in 2016 per county and rename county to match the field in the spatial data. Then we’ll take a look at it before proceding with the join and plot.</p>
+<p>I’m not satisfied with this direction. My research diverges to a review of CRAN at the <a href="https://cran.r-project.org/view=Spatial">CRAN Task View: Analysis of Spatial Data</a>. This led me to a recent paper by Robin Lovelace and James Cheshire found in the task view fourth paragraph, which further led me to Robin Lovelace’s <a href="https://github.com/Robinlovelace/Creating-maps-in-R">Github repo</a> for the paper. I elect to accomplish my own version of the plot in figure 7 on page 12 of the paper as this looks like an excellent milestone. First, I need to resolve my own data issue and narrow down the DPS figures to a single variable per Texas county. Then, as the <span class="citation">Lovelace and Cheshire (<a href="#ref-lovelace2014introduction">2014</a>)</span> paper demonstrates, I’ll use dplyr to complete the join and tmap, a package first introduced to me in this paper. We’ll sum all allegations in 2016 per county and rename county to match the field in the spatial data. Then we’ll take a look at it before proceding with the join and plot.</p>
 <pre class="r"><code>confirmed_county_total &lt;- df %&gt;%
     filter(fiscal_year==&quot;2016-01-01&quot;) %&gt;%
     group_by(county) %&gt;%
@@ -249,7 +249,7 @@ glimpse(confirmed_county_total)</code></pre>
 <pre class="r"><code>library(tmap)
 qtm(tx, &quot;confirmed_allegations&quot;) </code></pre>
 <p><img src="/post/2017-11-25-texas-cps-data-and-county-graphics_files/figure-html/plot6-1.png" width="672" /></p>
-<p>I strongly suspect that if we plotted population, we’d see extremely similar patterns.</p>
+<p>The <span class="citation">Lovelace and Cheshire (<a href="#ref-lovelace2014introduction">2014</a>)</span> paper has definately improved my results. Due to the expected relationship between confirmed cases and population, it would make sense to explore some analysis taking county population or household count into account.</p>
 </div>
 </div>
 <div id="references" class="section level1 unnumbered">
